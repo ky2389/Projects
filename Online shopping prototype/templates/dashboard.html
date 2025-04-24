@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Welcome to the Dashboard</h2>
+    {% if current_user.is_authenticated %}
+        <p>Logged in as: {{ current_user.username }}</p>
+    {% else %}
+        <p>You are browsing as a guest. <a href="{{ url_for('login') }}">Log in</a> to see product details.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Search and Filter Section -->
+    <div>
+        <!-- Search Form -->
+        <form action="{{ url_for('search_product') }}" method="GET">
+            <div class="input-group">
+                <input type="text" name="q" placeholder="Search by product name or description"
+                       value="{{ search_query if search_query is defined else '' }}">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    
+        <!-- Active Filters -->
+        {% if (search_query is defined and search_query) or (selected_tag is defined and selected_tag) %}
+            <div>
+                    <strong>Active filters:</strong>
+                    {% if search_query is defined and search_query %}
+                        <span>Search: "{{ search_query }}"</span>
+                    {% endif %}
+                    {% if selected_tag is defined and selected_tag %}
+                        <span>Category: {{ selected_tag }}</span>
+                    {% endif %}
+                <a href="{{ url_for('dashboard') }}">Clear all</a>
+            </div>
+        {% endif %}
+    
+        <!-- Category Filter -->
+        <div>
+            <strong>Filter by category:</strong>
+            <a href="{{ url_for('dashboard') }}" 
+                {% if not selected_tag is defined or not selected_tag %}style="font-weight: bold;"{% endif %}>
+                All
+            </a>
+            {% if all_tags %}
+                {% for tag in all_tags %}
+                    {% if tag %}  <!-- Skip empty tags -->
+                        <a href="{{ url_for('search_product', tag=tag, q=search_query if search_query is defined else '') }}" 
+                        {% if selected_tag is defined and selected_tag == tag %}style="font-weight: bold;"{% endif %}>
+                        {{ tag }}
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <h3>Posted Products</h3>
+    {% if products %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Dealer</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Pickup Location</th>
+                    <th>Inventory</th>
+                    <th>Tag</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('product_detail', product_id=product._id) }}">{{ product.product_name }}</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" onclick="alert('Please log in to view product details!');">{{ product.product_name }}</a>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.username }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>${{ product.price }}</td>
+                    <td>{{ product.pickup_location }}</td>
+                    <td>{{ product.inventory }}</td>
+                    <td>{{ product.tag }}</td>
+                    <td>
+                        {% if product.image_data %}
+                            <img src="data:{{ product.image_type }};base64,{{ product.image_data }}" alt="Product Image"
+                                style="max-width: 100px; max-height: 100px;">
+                        {% else %}
+                            No image
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No products have been posted yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

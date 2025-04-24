@@ -1,0 +1,49 @@
+.navbar {
+    background-color: #57068c !important; /* Set navbar background to your violet color */
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: white !important; /* Ensure navbar links remain visible */
+}
+
+.navbar-dark .navbar-brand {
+    color: white !important; /* Ensure brand text remains visible */
+}
+
+/* Search Button Styling */
+button[type="submit"] {
+    background-color: #57068c !important; /* Set the button color to violet */
+    color: white !important; /* Set text color to white */
+    border: none; /* Remove default border */
+    padding: 5px 15px; /* Adjust padding */
+    cursor: pointer; /* Change cursor to pointer */
+    font-weight: bold; /* Make text bold */
+}
+
+button[type="submit"]:hover {
+    background-color: #6b0fa3 !important; 
+}
+
+/* Ensure the page takes up the full height of the viewport */
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make sure the content grows while pushing the footer down */
+.container {
+    flex: 1;
+}
+
+/* Fixed Footer at the Bottom */
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background-color: #57068c !important;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}

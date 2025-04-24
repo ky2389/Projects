@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.product_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ product.product_name }}</h2>
+    <p><strong>Dealer:</strong> {{ product.username }}</p>
+    <p><strong>Description:</strong> {{ product.description }}</p>
+    <p><strong>Price:</strong> ${{ product.price }}</p>
+    <p><strong>Delivery Location:</strong> {{ product.pickup_location }}</p>
+    <p><strong>Inventory:</strong> {{ product.inventory }}</p>
+    <p><strong>Tag:</strong> {{ product.tag }}</p>
+
+    {% if product.image_data %}
+    <img src="data:{{ product.image_type }};base64,{{ product.image_data }}" alt="Product Image"
+        style="max-width: 200px;">
+    {% else %}
+    <p>No image available.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Comments</h3>
+    {% if comments %}
+        <ul class="list-group">
+            {% for comment in comments %}
+                <li class="list-group-item">
+                    <strong>{{ comment.username }}:</strong> {{ comment.comment }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No comments yet. Be the first to comment!</p>
+    {% endif %}
+
+    <hr>
+
+    {% if current_user.is_authenticated %}
+    <form method="POST">
+        <div class="mb-3">
+            <label for="comment" class="form-label">Add a Comment</label>
+            <textarea class="form-control" name="comment" id="comment" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+    {% else %}
+    <p><a href="{{ url_for('login') }}">Log in</a> to post a comment.</p>
+    {% endif %}
+</div>
+{% endblock %}
