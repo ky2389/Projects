@@ -1,0 +1,5 @@
+{% if identity == "teacher" %}
+    {% include "teacher_home.html" %}
+{% else %}
+    {% include "student_home.html" %}
+{% endif %}

@@ -1,0 +1,7 @@
+flask
+pymongo
+dnspython
+werkzeug
+python-dotenv
+requests
+markdown
