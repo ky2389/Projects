@@ -6,51 +6,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DarkSpace{% endblock %}</title>
 
-    <!-- 本地样式（Bootstrap & Font-Awesome） -->
+    <!-- Local CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/fa.min.css') }}">
 
-    <!-- 简易暗黑主题覆写 -->
     <style>
         :root {
-            --bg-main: #121212;
-            --fg-main: #e6e6e6;
+            /* colors */
+            --bg-main: #ffffff;
+            --fg-main: #212529;
             --accent: #0d6efd;
-            --card: #1e1e1e;
-            --card-border: #333;
+            --nav-bg: #1a1a1a;
+            --footer-bg: #1a1a1a;
+            --card-bg: #ffffff;
+            --card-border: #e1e1e1;
         }
 
+        /* global */
         body {
             background: var(--bg-main);
             color: var(--fg-main);
         }
 
+        /* navbar */
         .navbar {
-            background: #1a1a1a !important;
+            background: var(--nav-bg) !important;
         }
 
         .navbar-brand,
         .nav-link {
-            color: var(--fg-main) !important;
+            color: var(--bg-main) !important;
         }
 
         .nav-link:hover {
             color: var(--accent) !important;
         }
 
+        .navbar-brand img {
+            width: 64px;
+            height: 64px;
+        }
+
+        /* buttons */
         .btn-primary {
             background: var(--accent);
             border: none;
         }
 
+        /* cards / content boxes */
         .card {
-            background: var(--card);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
         }
 
+        /* footer */
         .footer {
-            background: #1a1a1a;
+            background: var(--footer-bg);
             border-top: 1px solid #333;
+        }
+
+        .footer .text-muted {
+            color: #adb5bd !important;
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -58,11 +75,23 @@
 
 <body>
 
+    {# --- Flash messages (Bootstrap 4/5) -------------------------------- #}
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" width="32" height="32"
-                    class="mr-2">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" class="mr-2">
                 DarkSpace
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
@@ -72,12 +101,19 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home Page</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('content.show_content') }}">Contents</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link"
-                            href="{{ url_for('assignment.show_assignments') }}">Assignment</a></li>
+                            href="{{ url_for('assignment.show_assignments') }}">Assignments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('chat.chat_index') }}">Chat</a></li>
                     {% if session.get('identity') == 'teacher' %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('assignment.create_assignment') }}">Post
                             An Assignment</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('all_students') }}">All
+                            Students</a></li>
+                    {% endif %}
+                    {% if session.get('identity') == 'student' %}
                     {% endif %}
                 </ul>
 
@@ -123,7 +159,8 @@
         <span class="text-muted">© 2025 DarkSpace – A Bridge Between GitHub and Brightspace</span>
     </footer>
 
-    <!-- 本地 JS（Bootstrap Bundle 已含 Popper） -->
+    <!-- Local JS -->
+    <script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
