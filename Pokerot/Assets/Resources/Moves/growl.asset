@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46de2ef9ac2924e4da1d8a3ae1f0f243, type: 3}
+  m_Name: growl
+  m_EditorClassIdentifier: 
+  name: growl
+  description: Lowers the target's Attack by one stage.
+  type: 1
+  power: 0
+  accuracy: 100
+  alwaysHits: 0
+  pp: 40
+  priority: 0
+  category: 0
+  effects:
+    boosts: []
+    status: 0
+    volatileStatus: 0
+  secondaries: []
+  target: 0

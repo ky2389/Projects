@@ -1,0 +1,36 @@
+{
+    "files.exclude": {
+        "**/*.meta": true,
+        "**/Library": true,
+        "**/Temp": true,
+        "**/obj": true,
+        "**/Logs": true,
+        "**/Build": true,
+        "**/.vs": true
+    },
+    "search.exclude": {
+        "**/*.meta": true,
+        "**/*.csproj": true,
+        "**/*.sln": true,
+        "**/Library": true,
+        "**/Temp": true,
+        "**/obj": true,
+        "**/Logs": true,
+        "**/Build": true,
+        "**/.vs": true
+    },
+    "files.watcherExclude": {
+        "**/Library/**": true,
+        "**/Temp/**": true,
+        "**/obj/**": true,
+        "**/Logs/**": true,
+        "**/Build/**": true
+    },
+    "dotnet.defaultSolution": "Final Project.sln",
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "d:\\Unity\\IGP Projects\\IGP assignments\\Final Project\\Final Project.sln",
+        "d:\\Unity\\IGP Projects\\IGP assignments\\Final Project\\LeBryan_P03A-main.sln",
+        "d:\\Unity\\IGP Projects\\IGP assignments\\Final Project\\Assembly-CSharp-firstpass.csproj",
+        "d:\\Unity\\IGP Projects\\IGP assignments\\Final Project\\Assembly-CSharp.csproj"
+    ]
+}

@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fd68a4b7ad6344ba826f63fe210892, type: 3}
+  m_Name: pokemon_030
+  m_EditorClassIdentifier: 
+  pokemonName: nidorina
+  description: 
+  frontSprite: {fileID: 21300000, guid: c34a214c942d88f4394996e5721834af, type: 3}
+  backSprite: {fileID: 21300000, guid: eff6c8f0efcc3af459e997840446d361, type: 3}
+  type1: 8
+  type2: 0
+  maxHp: 70
+  attack: 62
+  defense: 67
+  spAttack: 55
+  spDefense: 55
+  speed: 56
+  expYield: 128
+  growthRate: 1
+  catchRate: 45
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: aab435b248dca214299872fee98cb80c, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: aab435b248dca214299872fee98cb80c, type: 2}
+    level: 8
+  - moveBase: {fileID: 11400000, guid: ecd0a4c2fe295ec41b2dbbf409ea04cf, type: 2}
+    level: 50
+  - moveBase: {fileID: 11400000, guid: 0deaf73b5b7e48c4ba19073f29ba1594, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 3568fef91dea1ce47a9981d0fca7d166, type: 2}
+    level: 23
+  - moveBase: {fileID: 11400000, guid: a5bfde39017103849ae8b7b9ded9b4c4, type: 2}
+    level: 14
+  - moveBase: {fileID: 11400000, guid: f7e8a27f673668040b39209d1eca3d5b, type: 2}
+    level: 32
+  - moveBase: {fileID: 11400000, guid: dd56d9a952dc90f4f8f8fe336c3afd7f, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 3546c7d5694e8ff41a0ac4c501f32179, type: 2}
+    level: 41

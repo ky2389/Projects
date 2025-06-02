@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46de2ef9ac2924e4da1d8a3ae1f0f243, type: 3}
+  m_Name: leech-seed
+  m_EditorClassIdentifier: 
+  name: leech-seed
+  description: "Plants a seed on the target that drains 1/8 of its max HP at the
+    end of every turn and heals the user for the amount taken.  Has no effect on
+    grass Pok\xE9mon.  The seed remains until the target leaves the field.\n\nThe
+    user takes damage instead of being healed if the target has liquid ooze.\n\nrapid
+    spin will remove this effect.\n\nThis effect is passed on by baton pass."
+  type: 5
+  power: 0
+  accuracy: 90
+  alwaysHits: 0
+  pp: 10
+  priority: 0
+  category: 0
+  effects:
+    boosts: []
+    status: 0
+    volatileStatus: 0
+  secondaries: []
+  target: 0

@@ -1,0 +1,36 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+# Unity specific warning suppressions
+# 0649: Field is never assigned to, and will always have its default value (Unity Inspector assignments)
+# 0414: Field is assigned but its value is never used (Unity Inspector visible fields)
+# 0169: Field is never used (Unity Inspector visible fields)
+dotnet_diagnostic.CS0649.severity = none
+dotnet_diagnostic.CS0414.severity = none
+dotnet_diagnostic.CS0169.severity = none
+
+# Code style settings
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# Indentation preferences
+indent_style = space
+indent_size = 4
+
+# New line preferences
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# Space preferences
+csharp_space_after_cast = false
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses = false 

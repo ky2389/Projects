@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fd68a4b7ad6344ba826f63fe210892, type: 3}
+  m_Name: pokemon_001
+  m_EditorClassIdentifier: 
+  pokemonName: bulbasaur
+  description: 
+  frontSprite: {fileID: 21300000, guid: be69d05fe1912474c9057a3bc4da65be, type: 3}
+  backSprite: {fileID: 21300000, guid: 668e652c9b7ec464499321c91240bb08, type: 3}
+  type1: 5
+  type2: 8
+  maxHp: 45
+  attack: 49
+  defense: 49
+  spAttack: 65
+  spDefense: 65
+  speed: 45
+  expYield: 64
+  growthRate: 1
+  catchRate: 45
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: a571f6bb0ed8fdd47bc405e843b9d9ec, type: 2}
+    level: 13
+  - moveBase: {fileID: 11400000, guid: 0deaf73b5b7e48c4ba19073f29ba1594, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: dd56d9a952dc90f4f8f8fe336c3afd7f, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: b95b2a613bd6fa44fa87e7f727cd1311, type: 2}
+    level: 7
+  - moveBase: {fileID: 11400000, guid: 131748c57808d9c48903b58fc86d2163, type: 2}
+    level: 34
+  - moveBase: {fileID: 11400000, guid: 7ac423e5d10a1c74e921af7422b287b6, type: 2}
+    level: 27
+  - moveBase: {fileID: 11400000, guid: 84480b64a2ec9a8409b381684022efa6, type: 2}
+    level: 48
+  - moveBase: {fileID: 11400000, guid: c0e2c270290d5b044a86372e2d51ed7d, type: 2}
+    level: 20
+  - moveBase: {fileID: 11400000, guid: 2bc52e310b7dec44389f6bca7aabaa3a, type: 2}
+    level: 41

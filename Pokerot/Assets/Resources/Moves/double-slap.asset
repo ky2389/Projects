@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46de2ef9ac2924e4da1d8a3ae1f0f243, type: 3}
+  m_Name: double-slap
+  m_EditorClassIdentifier: 
+  name: double-slap
+  description: "Inflicts regular damage.  Hits 2\u20135 times in one turn.\n\nHas
+    a 3/8 chance each to hit 2 or 3 times, and a 1/8 chance each to hit 4 or 5 times. 
+    Averages to 3 hits per use."
+  type: 1
+  power: 15
+  accuracy: 85
+  alwaysHits: 0
+  pp: 10
+  priority: 0
+  category: 0
+  effects:
+    boosts: []
+    status: 0
+    volatileStatus: 0
+  secondaries: []
+  target: 0

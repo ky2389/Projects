@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fd68a4b7ad6344ba826f63fe210892, type: 3}
+  m_Name: pokemon_727
+  m_EditorClassIdentifier: 
+  pokemonName: incineroar
+  description: 
+  frontSprite: {fileID: 21300000, guid: fd226b61d7a09764ab55ac679ca26875, type: 3}
+  backSprite: {fileID: 21300000, guid: fc370d1e1f3f5e04e9a9819808962c77, type: 3}
+  type1: 2
+  type2: 16
+  maxHp: 95
+  attack: 115
+  defense: 90
+  spAttack: 80
+  spDefense: 90
+  speed: 60
+  expYield: 265
+  growthRate: 1
+  catchRate: 45
+  learnableMoves: []
