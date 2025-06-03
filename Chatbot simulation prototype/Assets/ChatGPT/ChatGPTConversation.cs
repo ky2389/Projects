@@ -12,8 +12,7 @@ namespace ChatGPTWrapper {
         public enum Model {
             ChatGPT,
             Davinci,
-            Curie,
-            Ada
+            Curie
         }
         [SerializeField]
         public Model _model = Model.ChatGPT;
@@ -55,7 +54,7 @@ namespace ChatGPTWrapper {
                 case Model.ChatGPT:
                     _chat = new Chat(_initialPrompt);
                     _uri = "https://api.openai.com/v1/chat/completions";
-                    _selectedModel = "gpt-4o-mini";
+                    _selectedModel = "gpt-3.5-turbo";
                     break;
                 case Model.Davinci:
                     _prompt = new Prompt(_chatbotName, _initialPrompt);
@@ -66,11 +65,6 @@ namespace ChatGPTWrapper {
                     _prompt = new Prompt(_chatbotName, _initialPrompt);
                     _uri = "https://api.openai.com/v1/completions";
                     _selectedModel = "text-curie-001";
-                    break;
-                case Model.Ada:
-                    _prompt = new Prompt(_chatbotName, _initialPrompt);
-                    _uri = "https://api.openai.com/v1/completions";
-                    _selectedModel = "text-ada-001";
                     break;
             }
         }

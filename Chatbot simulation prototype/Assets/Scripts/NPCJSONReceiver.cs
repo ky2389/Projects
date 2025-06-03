@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
-
-[Serializable]
-public class NPCJSONReceiver
+[System.Serializable]
+public class NPCJsonReceiver 
 {
-	public string animation_name;
-	public string reply_to_player;
+    public string animation_name;
+    public string reply_to_player;
 }

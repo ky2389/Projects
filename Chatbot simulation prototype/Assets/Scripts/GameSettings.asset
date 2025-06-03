@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f72ba34eb9abe04b819651ba74e3864, type: 3}
+  m_Script: {fileID: 11500000, guid: 2850b9b53895eab419dfba502bbf540e, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  gameTimer: 17.54638
-  selectedIndex: 1
+  gameTimer: 0
+  selectedIndex: 0

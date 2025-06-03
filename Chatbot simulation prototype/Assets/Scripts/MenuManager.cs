@@ -1,64 +1,49 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.SceneManagement;
-
 public class MenuManager : MonoBehaviour
 {
     [SerializeField]
-    TextMeshProUGUI tX_Selected;
+    TextMeshProUGUI tX_SelectedPersonality;
     [SerializeField]
-    PersonalityDatabase personDB;
+    PersonalityDB personalityDB;
     [SerializeField]
-    GameSettings settings;
-
+    GameSettings gameSettings;
     [SerializeField]
     ToggleGroup toggleGroup;
     [SerializeField]
     Toggle[] toggles;
-
-    // Start is called before the first frame update
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        for (int i = 0; i < toggles.Length; i++)
-        {
-            toggles[i].GetComponentInChildren<Text>().text = personDB.personalities[i].name;
+        for(int i=0;i<toggles.Length;i++){
+            toggles[i].GetComponentInChildren<Text>().text=personalityDB.personalities[i].name;
         }
-
-        //Load data
-        settings.gameTimer = PlayerPrefs.GetFloat("GameTimer", 0);
-        settings.selectedIndex = PlayerPrefs.GetInt("SelectedIndex", 0);
-        tX_Selected.text = "Current Selected Personality: " + personDB.personalities[settings.selectedIndex].name;
-
-        toggles[settings.selectedIndex].isOn = true;
+        //Load the data
+        gameSettings.gameTimer=PlayerPrefs.GetFloat("gameTimer",0);
+        gameSettings.selectedIndex=PlayerPrefs.GetInt("selectedIndex",0);
+        tX_SelectedPersonality.text="Current Personality: "+personalityDB.personalities[gameSettings.selectedIndex].name;
+        toggles[gameSettings.selectedIndex].isOn=true;
     }
-    public void StartGame()
-    {
-        PlayerPrefs.SetFloat("GameTimer", settings.gameTimer);
-        PlayerPrefs.SetInt("SelectedIndex", settings.selectedIndex);
-
-        SceneManager.LoadScene("GameState");
-    }
-
-    public void OnValueChanges()
-	{
-        var currentToggle = toggleGroup.ActiveToggles().FirstOrDefault();
-        
-        int currentSelectedIndex = 0;
-        for(int i = 0; i < toggles.Length; i++)
-		{
-            if(currentToggle == toggles[i])
-			{
-                currentSelectedIndex = i;
+    public void OnValueChanged(){
+        var currentToggle=toggleGroup.ActiveToggles().FirstOrDefault();
+        int currentSelectedIndex=0;
+        for(int i=0;i<toggles.Length;i++){
+            if(currentToggle==toggles[i]){
+                currentSelectedIndex=i;
                 break;
-			}
-		}
-
-        settings.selectedIndex = currentSelectedIndex;
-        tX_Selected.text = "Current Selected Personality: " + personDB.personalities[settings.selectedIndex].name;
+            }
+        }
+        gameSettings.selectedIndex=currentSelectedIndex;
+        tX_SelectedPersonality.text="Current Personality: "+personalityDB.personalities[currentSelectedIndex].name;
+        PlayerPrefs.SetInt("selectedIndex",currentSelectedIndex);
+        PlayerPrefs.SetFloat("gameTimer",gameSettings.gameTimer);
+        
     }
-
+    public void StartGame(){
+    SceneManager.LoadScene("GameState");
 }
+}
+

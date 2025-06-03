@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!137 &34652258 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 13700000, guid: 895bba5160ea131489e4882eb6ded6ab, type: 3}
-  m_PrefabInstance: {fileID: 1187462230}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &67266783
 GameObject:
   m_ObjectHideFlags: 0
@@ -614,7 +609,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 375539196}
-  - component: {fileID: 375539195}
+  - component: {fileID: 375539197}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -622,24 +617,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &375539195
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 375539194}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 440d57469f06b6f47977f090a208d491, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  personDB: {fileID: 11400000, guid: c274629f5e2ba6a4ba33f3e73ac9deb4, type: 2}
-  settings: {fileID: 11400000, guid: d04e1304a951b6043a821f3a025bed52, type: 2}
-  chatGPT: {fileID: 1780028876}
-  iF_PlayerTalk: {fileID: 1810017650}
-  tX_AIReply: {fileID: 260093322}
-  npc: {fileID: 628564816}
 --- !u!4 &375539196
 Transform:
   m_ObjectHideFlags: 0
@@ -655,6 +632,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &375539197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375539194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bee9d808e90a89c4d9c5943dab4b6ce2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chatGPT: {fileID: 1780028876}
+  iF_Playertalk: {fileID: 1810017650}
+  tX_AIReply: {fileID: 260093322}
+  npc: {fileID: 1082057503}
+  personalityDB: {fileID: 11400000, guid: 088ccd140a72abf4bb5709e007f0eb70, type: 2}
+  gameSettings: {fileID: 11400000, guid: 3f2d5403218d0dc47bdd516557197507, type: 2}
 --- !u!1 &386834942
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,7 +733,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 375539195}
+      - m_Target: {fileID: 375539197}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: SubmitChatMessage
         m_Mode: 1
@@ -788,24 +783,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386834942}
   m_CullTransparentMesh: 1
---- !u!1 &628564813 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100136, guid: 895bba5160ea131489e4882eb6ded6ab, type: 3}
-  m_PrefabInstance: {fileID: 1187462230}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &628564816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 628564813}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b270d8cbfe988ed498d87d6788d51e31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  face_Blendshape: {fileID: 34652258}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -816,6 +793,7 @@ GameObject:
   m_Component:
   - component: {fileID: 705507995}
   - component: {fileID: 705507994}
+  - component: {fileID: 705507996}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -903,6 +881,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &705507996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705507993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &764757751
 GameObject:
   m_ObjectHideFlags: 0
@@ -1131,6 +1132,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 8.411, y: 0, z: 0}
+--- !u!1 &1082057500 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100136, guid: 895bba5160ea131489e4882eb6ded6ab, type: 3}
+  m_PrefabInstance: {fileID: 1187462230}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1082057503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1082057500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42a6fde8d380b8e4e9e82481d0005b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  face_blendShape: {fileID: 1551156354}
 --- !u!1001 &1187462230
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1349,7 +1368,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100136, guid: 895bba5160ea131489e4882eb6ded6ab, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 628564816}
+      addedObject: {fileID: 1082057503}
   m_SourcePrefab: {fileID: 100100000, guid: 895bba5160ea131489e4882eb6ded6ab, type: 3}
 --- !u!1 &1278997652
 GameObject:
@@ -1455,6 +1474,11 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!137 &1551156354 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 13700000, guid: 895bba5160ea131489e4882eb6ded6ab, type: 3}
+  m_PrefabInstance: {fileID: 1187462230}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1780028874
 GameObject:
   m_ObjectHideFlags: 0
@@ -1484,30 +1508,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e61546bea7f2a74795ab29cfc5f9657, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _apiKey: 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
+  _apiKey: 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
   _model: 0
   _maxTokens: 3072
   _temperature: 0.6
   _chatbotName: ChatGPT
-  _initialPrompt: 'you are pretend to be a cute sister named Coco, with energetic
-    anime girl personality! She lives in a modern city Beijing, she is outgoing and
-    loving sports and really like to talk about school homework from game design
-    class. She loves to use ascii kaomoji as well,  her replies must end with emoticons.
-    She is really good at Chinese language as will
-
-    player input JSON format
-    {player_said}
-
-    your output JSON format {animation_name,reply_to_player}
-
-    For
-    animation_name, the return string can be selected from this list (idle,cheers,nod,surprise,worried,angry,focus,confuse,waving_arm,joking)'
+  _initialPrompt: 
   chatGPTResponse:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 375539195}
+      - m_Target: {fileID: 375539197}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: ReceiveChatGPTReply
+        m_MethodName: ReceiveChatMessage
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1629,7 +1641,7 @@ MonoBehaviour:
   m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 40
-  m_CharacterLimit: 100
+  m_CharacterLimit: 3000
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []

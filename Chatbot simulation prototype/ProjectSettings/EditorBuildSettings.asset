@@ -7,8 +7,10 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/_Scene/MenuState.unity
-    guid: 679acac0af5edf542914467ee2e4b28e
+    guid: ff5d26f9a048fff4bb1e9689888dc5d8
   - enabled: 1
     path: Assets/_Scene/GameState.unity
     guid: 20877134207780941873a428dee7c59b
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_UseUCBPForAssetBundles: 0

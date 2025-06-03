@@ -1,18 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NPCController : MonoBehaviour
 {
     Animator anim;
     [SerializeField]
-    SkinnedMeshRenderer face_Blendshape;
+    SkinnedMeshRenderer face_blendShape;
+    int blinking=0;
+    float blinkValue=0f;
+    float blinkTimer=0f;
+    float blinkTimerTotal=3.5f;
 
-    int blinking = 0;
-    float blinkingValue = 0;
-    float blinkingTimer = 0;
-    float blinkingTimerTotal = 3.5f;
-    // Start is called before the first frame update
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -21,128 +19,111 @@ public class NPCController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        blinkingTimer += Time.deltaTime;
-        if (blinking == 0 && (Random.value < 0.001f || blinkingTimer > blinkingTimerTotal))
+        blinkTimer+=Time.deltaTime;
+        if(blinking==0&&(Random.value<0.01f||blinkTimer>blinkTimerTotal))
         {
-            blinkingTimer = 0;
-            blinkingTimerTotal = Random.Range(1.1f, 5.01f);
-            blinking = 1;
-            blinkingValue = 0;
+            blinking=1;
+            blinkValue=0;
+            blinkTimer=0f;
+            blinkTimerTotal=Random.Range(1.1f, 5.01f);
         }
-        else if (blinking == 1)
+        else if(blinking==1)
         {
-            blinkingValue += Time.deltaTime * 1000;
-            if (blinkingValue > 100)
+            blinkValue+=Time.deltaTime*1000f;
+            if(blinkValue>100f)
             {
-                blinking = 2;
-                face_Blendshape.SetBlendShapeWeight(35, 100);
+                blinking=2;
+                face_blendShape.SetBlendShapeWeight(35, 100f);
             }
-            else
-            {
-                face_Blendshape.SetBlendShapeWeight(35, blinkingValue);
-            }
-        }
-        else if (blinking == 2)
-        {
-            blinkingValue -= Time.deltaTime * 600;
-            if (blinkingValue < 0)
-            {
-                blinking = 0;
-                face_Blendshape.SetBlendShapeWeight(35, 0);
-            }
-            else
-            {
-                face_Blendshape.SetBlendShapeWeight(35, blinkingValue);
+            else{
+                face_blendShape.SetBlendShapeWeight(35, blinkValue);
             }
         }
+        else if(blinking==2)
+        {
+            blinkValue-=Time.deltaTime*600f;
+            if(blinkValue<0f)
+            {
+                blinking=0;
+                face_blendShape.SetBlendShapeWeight(35, 0f);
+            }
+            else{
+                face_blendShape.SetBlendShapeWeight(35, blinkValue);
+            }
+        }
+
     }
-
-    public void ShowAnimation(string animID)
-    {
-        for (int i = 0; i < 60; i++)
+    public void showAnimation(string animID)
+    {   
+        for(int i=0; i<face_blendShape.sharedMesh.blendShapeCount; i++)
         {
-            if (i != 1)
-            {
-                face_Blendshape.SetBlendShapeWeight(i, 0);
+            if (i!=35){
+                face_blendShape.SetBlendShapeWeight(i, 0f);
             }
         }
-
-        if (animID == "idle")
+        if(animID=="idle")
         {
-            if (Random.value < 0.3f)
+            if(Random.value<0.3f)
             {
                 anim.SetTrigger("idle1");
             }
-            else if (Random.value < 0.6f)
+            else if(Random.value<0.6f)
             {
                 anim.SetTrigger("idle2");
             }
             else
             {
-                anim.SetTrigger("idle");
-            }
-            if(Random.value < 0.5f)
-            {
-                face_Blendshape.SetBlendShapeWeight(9, 100);
-            }
-            else
-            {
-                face_Blendshape.SetBlendShapeWeight(24, 67);
+                anim.SetTrigger("idle3");
             }
         }
-        else if (animID == "shy")
+        else if(animID=="shy")
         {
             anim.SetTrigger("shy");
         }
-        else if (animID == "confuse")
+        else if(animID=="confused")
         {
-            anim.SetTrigger("confuse");
-            face_Blendshape.SetBlendShapeWeight(32, 100);
+            anim.SetTrigger("confused");
+            face_blendShape.SetBlendShapeWeight(32, 100f);
         }
-        else if (animID == "joking")
+        else if(animID=="joking")
         {
             anim.SetTrigger("joking");
-            face_Blendshape.SetBlendShapeWeight(33, 100);
+            face_blendShape.SetBlendShapeWeight(33, 190f);
         }
-        else if (animID == "worried")
-        {
-            anim.SetTrigger("worried");
-            face_Blendshape.SetBlendShapeWeight(52, 100);
-        }
-        else if (animID == "surprise")
+        else if(animID=="surprise")
         {
             anim.SetTrigger("surprise");
-            face_Blendshape.SetBlendShapeWeight(53, 100);
+            face_blendShape.SetBlendShapeWeight(53, 100f);
         }
-        else if (animID == "focus")
+        else if(animID=="focus")
         {
             anim.SetTrigger("focus");
-            face_Blendshape.SetBlendShapeWeight(50, 100);
+            face_blendShape.SetBlendShapeWeight(50, 100f);
         }
-        else if (animID == "angry")
+        else if(animID=="angry")
         {
             anim.SetTrigger("angry");
-            face_Blendshape.SetBlendShapeWeight(49, 100);
+            face_blendShape.SetBlendShapeWeight(49, 100f);
         }
-        else if (animID == "cheers")
+        else if(animID=="cheers")
         {
             anim.SetTrigger("cheers");
-            face_Blendshape.SetBlendShapeWeight(24, 100);
+            face_blendShape.SetBlendShapeWeight(24, 100f);
         }
-        else if (animID == "nod")
+        else if(animID=="nod")
         {
             anim.SetTrigger("nod");
-            face_Blendshape.SetBlendShapeWeight(9, 100);
+            face_blendShape.SetBlendShapeWeight(9, 100f);
         }
-        else if (animID == "waving_arm")
+        else if(animID=="waving_arm")
         {
             anim.SetTrigger("waving_arm");
-            face_Blendshape.SetBlendShapeWeight(24, 100);
+            face_blendShape.SetBlendShapeWeight(24, 100f);
         }
-        else if (animID == "proud")
+        else if(animID=="proud")
         {
             anim.SetTrigger("proud");
-            face_Blendshape.SetBlendShapeWeight(24, 100);
+            face_blendShape.SetBlendShapeWeight(24, 100f);
         }
     }
 }

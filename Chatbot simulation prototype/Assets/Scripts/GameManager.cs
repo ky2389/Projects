@@ -1,121 +1,103 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using ChatGPTWrapper;
-using System;
-using UnityEngine.SceneManagement;
-
+using TMPro;
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
-    [SerializeField]
-    PersonalityDatabase personDB;
-    [SerializeField]
-    GameSettings settings;
-    [SerializeField]
-    ChatGPTConversation chatGPT;
-
-    [SerializeField]
-    TMP_InputField iF_PlayerTalk;
-    [SerializeField]
-    TextMeshProUGUI tX_AIReply;
-    [SerializeField]
-    NPCController npc;
-
-    string npcName = "Coco";
-    string playerName = "Player";
-
-    float currentGameTimer = 0;
-
-    // Start is called before the first frame update
-    void Awake()
+    static GameManager instance = null;
+    private void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
 
-        chatGPT._initialPrompt = personDB.personalities[settings.selectedIndex].initialPrompt;
-        //chatGPT._initialPrompt = string.Format(chatGPT._initialPrompt, npcName, playerName) + initialPrompt_CommonPart;
-
-        //Enable ChatGPT
         chatGPT.Init();
-
     }
-
-    private void Start()
+    
+    [SerializeField]
+    ChatGPTConversation chatGPT;
+    [SerializeField]
+    TMP_InputField iF_Playertalk;
+    [SerializeField]
+    TextMeshProUGUI tX_AIReply;
+    [SerializeField]
+    NPCController npc;
+    [SerializeField]
+    PersonalityDB personalityDB;
+    [SerializeField]
+    GameSettings gameSettings;
+    string npcName = "Coco";
+    string playerName = "Player";
+    void Start()
     {
-        chatGPT.SendToChatGPT("{\"player_said\":" + "\"Hello! Who are you?\"}");
-
+        // Load selected personality from PlayerPrefs
+        int selectedIndex = PlayerPrefs.GetInt("selectedIndex", 0);
+        gameSettings.selectedIndex = selectedIndex;
+        
+        // Set the personality
+        if (personalityDB != null && selectedIndex < personalityDB.personalities.Length)
+        {
+            npcName = personalityDB.personalities[selectedIndex].name;
+            // Send the initial prompt for the selected personality
+            chatGPT.SendToChatGPT(personalityDB.personalities[selectedIndex].initialPrompt);
+        }
+        else
+        {
+            chatGPT.SendToChatGPT("{\"player_said\""+":\"Hello! Who are you?\"}");
+        }
     }
-    // Update is called once per frame
     void Update()
     {
-		if (Input.GetButtonUp("Submit"))
-		{
-			SubmitChatMessage();
-		}
-
-        currentGameTimer += Time.deltaTime;
-
+        if(Input.GetButtonUp("Submit"))
+        {
+            SubmitChatMessage();
+        }
     }
-
-	private void OnApplicationQuit()
-	{
-        print(currentGameTimer);
-        settings.gameTimer += currentGameTimer;
-        PlayerPrefs.SetFloat("GameTimer", settings.gameTimer);
+    public void SubmitChatMessage()
+    {
+        string playerMessage = iF_Playertalk.text;
+        if(!string.IsNullOrEmpty(playerMessage))
+        {
+            chatGPT.SendToChatGPT("{\"player_said\""+":\""+playerMessage+"\"}");
+            ClearText();
+            tX_AIReply.text = "Thinking...";
+        }
     }
-
-	public void ReceiveChatGPTReply(string message)
+    void ClearText()
+    {
+        iF_Playertalk.text = string.Empty;
+    }
+    public void ReceiveChatMessage(string message)
     {
         print(message);
-
-        try
-        {
-            if (!message.EndsWith("}"))
+        try{
+            if(!message.EndsWith("}"))
             {
-                if (message.Contains("}"))
+                if(message.Contains("}"))
                 {
-                    message = message.Substring(0, message.LastIndexOf("}") + 1);
+                    message = message.Substring(0,message.LastIndexOf("}")+1);
                 }
                 else
                 {
-                    message += "}";
+                    message = message + "}";
                 }
-			}
-			// \ -> \\
-			message = message.Replace("\\", "\\\\");
-			// \\" -> \"
-			message = message.Replace("\\\\\"", "\\\"");
-			NPCJSONReceiver npcJSON = JsonUtility.FromJson<NPCJSONReceiver>(message);
-            string talkLine = npcJSON.reply_to_player;
-            tX_AIReply.text = "<color=#ff7082>" + npcName + ": </color>" + talkLine;
-
-            npc.ShowAnimation(npcJSON.animation_name);
-
+            }
+            message=message.Replace("\\","\\\\");
+            message=message.Replace("\\\\\"","\\\"");
+            NPCJsonReceiver npcJson = JsonUtility.FromJson<NPCJsonReceiver>(message);
+            string talkline = npcJson.reply_to_player;
+            tX_AIReply.text = "<color=#ff7082>"+npcName+":</color>"+talkline;
+            npc.showAnimation(npcJson.animation_name);
         }
-        catch (Exception e)
+        catch (System.Exception e)
         {
-            Debug.Log(e.Message);
-            string talkLine = "Don't say that!";
-            tX_AIReply.text = "<color=#ff7082>" + npcName + ": </color>" + talkLine;
+            print(e.Message);
+            tX_AIReply.text = "<color=#ff7082>"+npcName+":</color>"+"I don't understand what you said.";
         }
-    }
-
-    public void SubmitChatMessage()
-    {
-        if (iF_PlayerTalk.text != "")
-        {
-            Debug.Log("Message sent: " + iF_PlayerTalk.text);
-            chatGPT.SendToChatGPT("{\"player_said\":\"" + iF_PlayerTalk.text + "\"}");
-            ClearText();
-        }
-    }
-
-    void ClearText()
-    {
-        iF_PlayerTalk.text = "";
     }
 }
