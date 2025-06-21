@@ -21,8 +21,40 @@ public class GameManager : MonoBehaviour
     {
         if (sceneName == "Settings")
         {
-            SceneManager.LoadScene(sceneName,LoadSceneMode.Additive);
+            // Find and disable all UI canvases in the current scene before loading Settings
+            Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            // foreach (Canvas canvas in canvases)
+            // {
+            //     // Store the original state in a tag so we can restore it later
+            //     canvas.gameObject.tag = canvas.gameObject.activeSelf ? "EnabledCanvas" : "DisabledCanvas";
+            //     canvas.gameObject.SetActive(false);
+            //     Debug.Log("Canvas disabled: " + canvas.gameObject.name);
+            // }
+            
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
             return;
+        }
+        else if (sceneName == "MyScene")
+        {
+            // If we're returning to the game scene from settings, unload the settings scene first
+            if (SceneManager.GetSceneByName("Settings").isLoaded)
+            {
+                SceneManager.UnloadSceneAsync("Settings");
+                
+                // // Re-enable canvases that were previously enabled
+                // Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+                // foreach (Canvas canvas in canvases)
+                // {
+                //     if (canvas.gameObject.CompareTag("EnabledCanvas"))
+                //     {
+                //         canvas.gameObject.SetActive(true);
+                //         canvas.gameObject.tag = "Untagged";
+                //         Debug.Log("Canvas re-enabled: " + canvas.gameObject.name);
+                //     }
+                // }
+                return;
+            }
+            SceneManager.LoadScene(sceneName);
         }
         else{
             SceneManager.LoadScene(sceneName);

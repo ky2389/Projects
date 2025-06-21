@@ -1,16 +1,10 @@
 using UnityEngine;
 
-public class returnbutton : MonoBehaviour
+public class ReturnButton : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void ReturnToGame()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        // Call the GameManager to load the Game scene
+        GameManager.instance.LoadScene("MyScene");
     }
 }
