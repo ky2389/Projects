@@ -1508,7 +1508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e61546bea7f2a74795ab29cfc5f9657, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _apiKey: 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
+  _apiKey: Placeholder_change_to_api_key_if_needed
   _model: 0
   _maxTokens: 3072
   _temperature: 0.6

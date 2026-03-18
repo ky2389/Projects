@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using System.Collections;
+using UnityEngine.Networking;
 
 namespace ChatGPTWrapper {
 
@@ -23,6 +25,7 @@ namespace ChatGPTWrapper {
         private float _temperature = 0.6f;
         
         private string _uri;
+        private string _healthUri;
         private List<(string, string)> _reqHeaders;
         
 
@@ -31,6 +34,7 @@ namespace ChatGPTWrapper {
         private Chat _chat;
         private string _lastUserMsg;
         private string _lastChatGPTMsg;
+        private bool _ollamaAvailable = false;
 
         [SerializeField]
         private string _chatbotName = "ChatGPT";
@@ -47,14 +51,16 @@ namespace ChatGPTWrapper {
         {
             _reqHeaders = new List<(string, string)>
             { 
-                ("Authorization", $"Bearer {_apiKey}"),
                 ("Content-Type", "application/json")
             };
             switch (_model) {
                 case Model.ChatGPT:
                     _chat = new Chat(_initialPrompt);
-                    _uri = "https://api.openai.com/v1/chat/completions";
-                    _selectedModel = "gpt-3.5-turbo";
+                    // Use local Ollama chat endpoint with Qwen2.5 model
+                    _uri = "http://localhost:11434/api/chat";
+                    _healthUri = "http://localhost:11434/api/version";
+                    _selectedModel = "qwen2.5:3b";
+                    StartCoroutine(CheckOllamaAvailability());
                     break;
                 case Model.Davinci:
                     _prompt = new Prompt(_chatbotName, _initialPrompt);
@@ -85,6 +91,14 @@ namespace ChatGPTWrapper {
             _lastUserMsg = message;
 
             if (_model == Model.ChatGPT) {
+                if (!_ollamaAvailable)
+                {
+                    // Keep gameplay running even if Ollama isn't installed/running.
+                    chatGPTResponse.Invoke(GetOllamaNotRunningFallbackJson());
+                    StartCoroutine(CheckOllamaAvailability());
+                    return;
+                }
+
                 _chat.AppendMessage(Chat.Speaker.User, message);
 
                 ChatGPTReq reqObj = new ChatGPTReq();
@@ -93,9 +107,8 @@ namespace ChatGPTWrapper {
         
                 string json = JsonUtility.ToJson(reqObj);
 
-
-
-                StartCoroutine(requests.PostReq<ChatGPTRes>(_uri, json, ResolveChatGPT, _reqHeaders));
+                // Use a request flow that always resolves (or falls back) so UI won't get stuck.
+                StartCoroutine(PostOllamaChat(json));
 
                
 
@@ -115,19 +128,98 @@ namespace ChatGPTWrapper {
 
         private void ResolveChatGPT(ChatGPTRes res)
         {
-            _lastChatGPTMsg = res.choices[0].message.content;
+            // Support both OpenAI-style (choices) and Ollama-style (single message) responses
+            if (res.choices != null && res.choices.Count > 0 && res.choices[0].message != null)
+            {
+                _lastChatGPTMsg = res.choices[0].message.content;
+            }
+            else if (res.message != null)
+            {
+                _lastChatGPTMsg = res.message.content;
+            }
+            else
+            {
+                _lastChatGPTMsg = "";
+            }
 
             _chat.AppendMessage(Chat.Speaker.ChatGPT, _lastChatGPTMsg);
             chatGPTResponse.Invoke(_lastChatGPTMsg);
 
-            //If the total_tokens over 4096 token limitation, remove the oldest message after initial prompt
-			int totalToken = res.usage.total_tokens;
+            //If tokens over limitation, remove the oldest message after initial prompt
+			int totalToken = 0;
+            if (res.usage != null)
+            {
+                totalToken = res.usage.total_tokens;
+            }
+            else
+            {
+                totalToken = res.eval_count + res.prompt_eval_count;
+            }
 			if (totalToken > 3850)
 			{
 				_chat.RemoveOldestMessage();
 			}
 			print("token: " + totalToken);
 		}
+
+        private IEnumerator CheckOllamaAvailability()
+        {
+            if (string.IsNullOrEmpty(_healthUri))
+            {
+                _ollamaAvailable = false;
+                yield break;
+            }
+
+            using (var req = UnityWebRequest.Get(_healthUri))
+            {
+                req.timeout = 2;
+                yield return req.SendWebRequest();
+
+#if UNITY_2020_3_OR_NEWER
+                _ollamaAvailable = req.result == UnityWebRequest.Result.Success;
+#else
+                _ollamaAvailable = string.IsNullOrWhiteSpace(req.error);
+#endif
+            }
+        }
+
+        private IEnumerator PostOllamaChat(string json)
+        {
+            using (var req = new UnityWebRequest(_uri, "POST"))
+            {
+                req.timeout = 30;
+                byte[] bodyRaw = new System.Text.UTF8Encoding().GetBytes(json);
+                req.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                req.downloadHandler = new DownloadHandlerBuffer();
+                for (int i = 0; i < _reqHeaders.Count; i++)
+                {
+                    req.SetRequestHeader(_reqHeaders[i].Item1, _reqHeaders[i].Item2);
+                }
+
+                yield return req.SendWebRequest();
+
+                bool ok;
+#if UNITY_2020_3_OR_NEWER
+                ok = req.result == UnityWebRequest.Result.Success;
+#else
+                ok = string.IsNullOrWhiteSpace(req.error);
+#endif
+                if (!ok)
+                {
+                    _ollamaAvailable = false;
+                    chatGPTResponse.Invoke(GetOllamaNotRunningFallbackJson());
+                    yield break;
+                }
+
+                var responseJson = JsonUtility.FromJson<ChatGPTRes>(req.downloadHandler.text);
+                ResolveChatGPT(responseJson);
+            }
+        }
+
+        private string GetOllamaNotRunningFallbackJson()
+        {
+            return "{\"animation_name\":\"confused\",\"reply_to_player\":\"Local AI is not running. Please start Ollama: 1) open PowerShell 2) run: ollama serve 3) make sure the model exists: ollama list\"}";
+        }
 
         private void ResolveGPT(GPTRes res)
         {

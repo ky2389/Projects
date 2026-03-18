@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ChatGPTWrapper {
@@ -6,5 +6,6 @@ namespace ChatGPTWrapper {
     {
         public string model;
         public List<Message> messages;
+        public bool stream = false;
     }
 }

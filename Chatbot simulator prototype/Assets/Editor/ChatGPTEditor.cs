@@ -30,12 +30,15 @@ namespace ChatGPTWrapper {
 			serializedObject.Update();
 			
 			EditorGUILayout.LabelField("Parameters", EditorStyles.boldLabel);
-			EditorGUILayout.PropertyField(_apiKey);
 			EditorGUILayout.PropertyField(_model);
 
+			// API key is only needed for OpenAI endpoints (non-local modes)
 			if (_model.enumValueIndex != 0) {
+				EditorGUILayout.PropertyField(_apiKey);
 				EditorGUILayout.PropertyField(_maxTokens);
 				EditorGUILayout.PropertyField(_temperature);
+			} else {
+				EditorGUILayout.HelpBox("Local Ollama mode: no API key is required. Make sure Ollama is running on http://localhost:11434.", MessageType.Info);
 			}
 
 			EditorGUILayout.Space(5);

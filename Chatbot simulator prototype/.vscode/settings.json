@@ -56,5 +56,8 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "gpt redo.sln"
+    "dotnet.defaultSolution": "Chatbot simulator prototype.sln",
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "d:\\Git repos\\Projects\\Chatbot simulator prototype\\Chatbot simulator prototype.sln"
+    ]
 }
