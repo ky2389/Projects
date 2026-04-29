@@ -60,7 +60,7 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        var wildPokemon = await wildPokemonSettings.GetComponent<WildPokemonSettings>().GetRandomWildPokemon();
+        var wildPokemon = await wildPokemonSettings.GetComponent<WildPokemonSettings>().GetRandomWildPokemon(playerParty);
         if (wildPokemon == null)
         {
             Debug.LogError("Failed to get wild Pokemon!");
