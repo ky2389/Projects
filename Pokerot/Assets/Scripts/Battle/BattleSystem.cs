@@ -162,6 +162,21 @@ public class BattleSystem : MonoBehaviour
             playerUnit.Pokemon.CurrentMove = playerUnit.Pokemon.Moves[currentMove];
             enemyUnit.Pokemon.CurrentMove = enemyUnit.Pokemon.GetRandomMove();
 
+            if (enemyUnit.Pokemon.CurrentMove == null)
+            {
+                state = BattleState.RunningTurn;
+                yield return RunMove(playerUnit, enemyUnit, playerUnit.Pokemon.CurrentMove);
+                yield return RunAfterTurn(playerUnit);
+                if (state == BattleState.BattleOver) yield break;
+
+                if (enemyUnit.Pokemon.HP > 0)
+                    yield return dialogBox.TypeDialog($"{enemyUnit.Pokemon.Base.Name} has no moves left!");
+
+                if (state != BattleState.BattleOver)
+                    ActionSelection();
+                yield break;
+            }
+
             int playerMovePriority = playerUnit.Pokemon.CurrentMove.Base.Priority;
             int enemyMovePriority = enemyUnit.Pokemon.CurrentMove.Base.Priority;
 
@@ -210,9 +225,16 @@ public class BattleSystem : MonoBehaviour
 
             // Enemy Turn
             var enemyMove = enemyUnit.Pokemon.GetRandomMove();
-            yield return RunMove(enemyUnit, playerUnit, enemyMove);
-            yield return RunAfterTurn(enemyUnit);
-            if (state == BattleState.BattleOver) yield break;
+            if (enemyMove != null)
+            {
+                yield return RunMove(enemyUnit, playerUnit, enemyMove);
+                yield return RunAfterTurn(enemyUnit);
+                if (state == BattleState.BattleOver) yield break;
+            }
+            else if (enemyUnit.Pokemon.HP > 0)
+            {
+                yield return dialogBox.TypeDialog($"{enemyUnit.Pokemon.Base.Name} has no moves left!");
+            }
         }
 
         if (state != BattleState.BattleOver)

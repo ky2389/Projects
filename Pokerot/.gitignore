@@ -69,9 +69,15 @@ crashlytics-build.properties
 # API Keys and sensitive data
 *.key
 *.pem
+*.env
+.env
+LocalApiSecrets.json
+ApiSecrets.json
+UserSecrets/
 *apikey*
 *apikey*
 *secret*
+!LocalApiSecrets.example.json
 *password*
 *credentials*
 

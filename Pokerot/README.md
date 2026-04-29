@@ -1,71 +1,59 @@
 # Pokerot
 
-A Unity-based Pokemon game that allows players to create and customize their own Pokemon using AI-generated content. The game combines ChatGPT for Pokemon data generation and DALL-E for sprite creation. 
-**Remark:** Image generation part is yet to be debugged if possible with the availability of AI image api keys. 
+Pokerot is a small Unity monster-battling game inspired by classic Pokemon. The twist is that the player can create their own starter Pokemon by typing in an animal or idea, then the game uses AI to generate the Pokemon's name, typing, moves, description, and sprites.
+
+This is a learning project and prototype, not a commercial Pokemon game.
+
+## What You Can Do
+
+- Create a custom starter Pokemon from a text idea.
+- Pick one or two types yourself, or let the AI choose.
+- Generate front and back pixel-style battle sprites.
+- Battle with your custom Pokemon in a simple turn-based battle system.
+- Encounter normal Pokemon and previously generated custom Pokemon as wild battles.
+
+## Tech Notes
+
+The project is built in Unity `6000.0.34f1`.
+
+Main systems:
+
+- `Assets/Scripts/UI/PokemonCustomizationUI.cs` handles the custom Pokemon creation flow.
+- `Assets/Scripts/Data/ImageGenerator.cs` calls Poe for image generation and processes the returned sprites.
+- `Assets/Scripts/ChatGPT/` contains both OpenAI-compatible chat support and a local Ollama option.
+- `Assets/Scripts/Battle/BattleSystem.cs` runs the turn-based battle logic.
+- `Assets/Scripts/Pokemon/PokemonDatabase.cs` loads Pokemon data from local assets or PokeAPI.
+- `Assets/Resources/AIPromptConfig.json` stores the editable AI prompts.
+
+## Running It
+
+1. Open the project in Unity Hub.
+2. Use Unity `6000.0.34f1` or a compatible Unity 6 version.
+3. Open `Assets/Scenes/MainMenu.unity` or `Assets/Scenes/Customize.unity`.
+4. Press Play.
+
+The AI features need API keys. You can either set environment variables:
+
+- `POE_API_KEY` for sprite generation.
+- `OPENAI_API_KEY` if you want to use the backup OpenAI chat path.
+
+Or create a local file named `LocalApiSecrets.json` in the project root:
+
+```json
+{
+    "poeApiKey": "your-poe-key",
+    "openAIApiKey": "your-openai-key"
+}
+```
+
+That file is ignored by Git. `LocalApiSecrets.example.json` is included as a safe template.
+
+## Current State
+
+This is still a prototype. The core loop works: generate a Pokemon, save it locally, and battle with it. Some generated content can be weird because it depends on the AI response, but the game has fallback handling for failed sprite generation and incomplete move data.
+
+Generated custom Pokemon, sprites, and moves are saved locally under `Assets/Resources/CustomPokemon`, `Assets/Resources/CustomSprites`, and `Assets/Resources/CustomMoves` while working in the editor.
 
 ## Credits
 
-This project is an extension of [WaterHusky's Pokemon Game Project](https://github.com/WaterHusky/LeBryan_P03A). The original project provided the core Pokemon battle system and game mechanics, which have been enhanced with AI-powered customization features and loading pokemons online more conveniently.
-
-**Important Note:** This project is for educational purposes only and is not intended for commercial use.
-
-## Features
-
-- Create custom Pokemon based on any animal or concept
-- AI-generated Pokemon data including:
-  - Custom name
-  - Type combinations
-  - Unique moves and abilities
-  - Detailed descriptions
-- AI-generated Pokemon sprites (front and back views)
-- Battle system with custom Pokemon
-- Fallback sprite generation based on Pokemon types
-
-## Prerequisites
-
-- Unity 2022.3 or later
-- OpenAI API key (for both ChatGPT and DALL-E)
-
-## Setup Instructions
-
-1. Clone this repository
-2. Open the project in Unity
-3. In the Unity Editor, open the `Customize` scene
-4. Configure API Keys:
-   - In the Inspector, find the `ChatGPTConversation` component
-   - Set your OpenAI API key in the `API Key` field
-   - In the `ImageGenerator` component
-   - Set the same OpenAI API key in the `Open AI Api Key` field
-
-## Project Structure
-
-- `Assets/Scripts/UI/PokemonCustomizationUI.cs` - Main UI controller for Pokemon customization
-- `Assets/Scripts/Data/ImageGenerator.cs` - Handles sprite generation using DALL-E
-- `Assets/Resources/CustomPokemon` - Stores generated Pokemon data
-- `Assets/Resources/CustomSprites` - Stores generated Pokemon sprites
-- `Assets/Resources/CustomMoves` - Stores generated Pokemon moves
-
-## How to Use
-
-1. Enter an animal name or concept in the input field
-2. Click "Generate" to create a custom Pokemon
-3. The system will:
-   - Generate Pokemon data using ChatGPT
-   - Create custom sprites using DALL-E
-   - Save all assets automatically
-4. Click "Confirm" to use your custom Pokemon in battle
-
-## Notes
-
-- The system requires an active internet connection for AI generation
-- If image generation fails, the system will create colorful placeholder sprites based on the Pokemon's types
-- Generated assets are saved locally and can be reused in future sessions
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- OpenAI for providing the ChatGPT and DALL-E APIs
-- Unity Technologies for the game engine
+This project builds on [WaterHusky's Pokemon Game Project](https://github.com/WaterHusky/LeBryan_P03A), which provided the base Pokemon-style battle system. I extended it with AI Pokemon creation, custom sprite generation, runtime persistence, and extra tooling around generated content.

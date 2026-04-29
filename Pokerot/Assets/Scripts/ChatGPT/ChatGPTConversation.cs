@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
 
 namespace ChatGPTWrapper {
 
-    public class ChatGPTConversation : MonoBehaviour
+    public class ChatGPTConversation : LLMConversationBase
     {
         [SerializeField]
         private string _apiKey = null;
@@ -39,30 +39,38 @@ namespace ChatGPTWrapper {
         public string _initialPrompt = "You are ChatGPT, a large language model trained by OpenAI.";
 
 
-        public UnityStringEvent chatGPTResponse = new UnityStringEvent();
-
-
-
-        public void Init()
+        public override void Init()
         {
+            string apiKey = global::ApiSecretConfig.GetOpenAIApiKey(_apiKey);
+            string initialPrompt = global::AIPromptConfig.Load().chatGPTInitialPrompt;
+            if (string.IsNullOrWhiteSpace(initialPrompt))
+            {
+                initialPrompt = _initialPrompt;
+            }
+
             _reqHeaders = new List<(string, string)>
             { 
-                ("Authorization", $"Bearer {_apiKey}"),
+                ("Authorization", $"Bearer {apiKey}"),
                 ("Content-Type", "application/json")
             };
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                Debug.LogWarning("OpenAI API key is not set. Add OPENAI_API_KEY as an environment variable or create LocalApiSecrets.json before using ChatGPTConversation.");
+            }
+
             switch (_model) {
                 case Model.ChatGPT:
-                    _chat = new Chat(_initialPrompt);
+                    _chat = new Chat(initialPrompt);
                     _uri = "https://api.openai.com/v1/chat/completions";
                     _selectedModel = "gpt-3.5-turbo";
                     break;
                 case Model.Davinci:
-                    _prompt = new Prompt(_chatbotName, _initialPrompt);
+                    _prompt = new Prompt(_chatbotName, initialPrompt);
                     _uri = "https://api.openai.com/v1/completions";
                     _selectedModel = "text-davinci-003";
                     break;
                 case Model.Curie:
-                    _prompt = new Prompt(_chatbotName, _initialPrompt);
+                    _prompt = new Prompt(_chatbotName, initialPrompt);
                     _uri = "https://api.openai.com/v1/completions";
                     _selectedModel = "text-curie-001";
                     break;
@@ -80,7 +88,7 @@ namespace ChatGPTWrapper {
             }
         }
 
-        public void SendToChatGPT(string message)
+        public override void SendToChatGPT(string message)
         {
             _lastUserMsg = message;
 

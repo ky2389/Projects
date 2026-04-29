@@ -181,7 +181,9 @@ public class PokemonDatabase : MonoBehaviour
 
                 // Set move properties
                 moveBase.Name = moveData.name;
-                moveBase.Description = moveData.effect_entries[0].effect;
+                moveBase.Description = moveData.effect_entries != null && moveData.effect_entries.Length > 0
+                    ? moveData.effect_entries[0].effect
+                    : moveData.name;
                 moveBase.Type = ParsePokemonType(moveData.type.name);
                 moveBase.Power = moveData.power;
                 moveBase.Accuracy = moveData.accuracy;
@@ -215,8 +217,11 @@ public class PokemonDatabase : MonoBehaviour
 
         // Save the asset
         string assetPath = $"Assets/Resources/Moves/{move.name.ToLower()}.asset";
-        UnityEditor.AssetDatabase.CreateAsset(move, assetPath);
-        UnityEditor.AssetDatabase.SaveAssets();
+        if (UnityEditor.AssetDatabase.LoadAssetAtPath<MoveBase>(assetPath) == null)
+        {
+            UnityEditor.AssetDatabase.CreateAsset(move, assetPath);
+            UnityEditor.AssetDatabase.SaveAssets();
+        }
         #endif
     }
 
@@ -273,9 +278,10 @@ public class PokemonDatabase : MonoBehaviour
                 Texture2D texture = DownloadHandlerTexture.GetContent(request);
                 sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
                 
-                // Save sprite as PNG
-                SaveSpriteAsAsset(sprite, spriteName);
+                // Cache in the editor when possible, but use the downloaded sprite immediately in builds.
+                SaveSpriteAsAsset(texture, spriteName);
                 
+                #if UNITY_EDITOR
                 // Wait longer for the asset to be imported
                 await Task.Delay(500);
                 
@@ -292,7 +298,9 @@ public class PokemonDatabase : MonoBehaviour
                 }
                 
                 Debug.LogError($"Failed to load sprite after saving: {spritePath}");
-                return null;
+                #endif
+
+                return sprite;
             }
             else
             {
@@ -314,12 +322,15 @@ public class PokemonDatabase : MonoBehaviour
 
         // Save the asset
         string assetPath = $"Assets/Resources/{POKEMON_ASSETS_PATH}/pokemon_{id:D3}.asset";
-        UnityEditor.AssetDatabase.CreateAsset(pokemon, assetPath);
-        UnityEditor.AssetDatabase.SaveAssets();
+        if (UnityEditor.AssetDatabase.LoadAssetAtPath<PokemonBase>(assetPath) == null)
+        {
+            UnityEditor.AssetDatabase.CreateAsset(pokemon, assetPath);
+            UnityEditor.AssetDatabase.SaveAssets();
+        }
         #endif
     }
 
-    private void SaveSpriteAsAsset(Sprite sprite, string spriteName)
+    private void SaveSpriteAsAsset(Texture2D texture, string spriteName)
     {
         #if UNITY_EDITOR
         // Create the directory if it doesn't exist
@@ -331,7 +342,7 @@ public class PokemonDatabase : MonoBehaviour
 
         // Save the sprite as a texture asset
         string texturePath = $"Assets/Resources/{POKEMON_ASSETS_PATH}/Sprites/{spriteName}.png";
-        File.WriteAllBytes(texturePath, sprite.texture.EncodeToPNG());
+        File.WriteAllBytes(texturePath, texture.EncodeToPNG());
         UnityEditor.AssetDatabase.Refresh();
 
         // Configure the texture import settings

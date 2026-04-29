@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fd68a4b7ad6344ba826f63fe210892, type: 3}
+  m_Name: pokemon_023
+  m_EditorClassIdentifier: 
+  pokemonName: ekans
+  description: 
+  frontSprite: {fileID: 21300000, guid: f0071ec31bacc24459cf9cec3f14b3e2, type: 3}
+  backSprite: {fileID: 21300000, guid: 69c35bdc0e126d84a8fa39c1f9e05fa6, type: 3}
+  type1: 8
+  type2: 0
+  maxHp: 35
+  attack: 60
+  defense: 44
+  spAttack: 40
+  spDefense: 54
+  speed: 55
+  expYield: 58
+  growthRate: 1
+  catchRate: 45
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: 623c02e79f69ac9419875e5f792bc3ec, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: a5bfde39017103849ae8b7b9ded9b4c4, type: 2}
+    level: 10
+  - moveBase: {fileID: 11400000, guid: da80b102072a8a24cb7481ea3faa0b90, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: f7e8a27f673668040b39209d1eca3d5b, type: 2}
+    level: 17
+  - moveBase: {fileID: 11400000, guid: 45e1f1b2230f0424384e050f7c84b410, type: 2}
+    level: 38
+  - moveBase: {fileID: 11400000, guid: 03937109580149c4d9b47eacce6fddce, type: 2}
+    level: 31
+  - moveBase: {fileID: 11400000, guid: 4d059d763db0e8b4a81fd0db6bab1144, type: 2}
+    level: 24

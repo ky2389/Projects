@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46de2ef9ac2924e4da1d8a3ae1f0f243, type: 3}
+  m_Name: mirror-move
+  m_EditorClassIdentifier: 
+  name: mirror-move
+  description: "Utilise la derni\xE8re capacit\xE9 qui a cibl\xE9 le lanceur par
+    un Pok\xE9mon toujours sur le terrain.  Une capacit\xE9 compte comme ciblant
+    le lanceur m\xEAme si elle a touch\xE9 plusieurs Pok\xE9mon, tant que le lanceur
+    \xE9tait l'un d'eux; cependant, les capacit\xE9s ciblant le terrain lui-m\xEAme
+    ne comptent pas.  Si le lanceur n'a pas \xE9t\xE9 cibl\xE9 par une capacit\xE9
+    appropri\xE9e depuis qu'il est entr\xE9 sur le terrain, ou si aucun Pok\xE9mon
+    qui a cibl\xE9 l'utilisateur est encore sur le terrain, cette capacit\xE9 \xE9chouera.\n\nLes
+    capacit\xE9s qui \xE9chouent, manquent leur cible, ont aucun effet, ou ont \xE9t\xE9
+    bloqu\xE9es sont quand m\xEAme copi\xE9es.\n\nLes capacit\xE9s d'Assistance,
+    \xE0 retardement, capacit\xE9s \u201Cmeta\u201D qui agissent sur d'autres capacit\xE9s/Pok\xE9mon/talents,
+    et d'autres capacit\xE9s sp\xE9ciales ne peuvent pas \xEAtre copi\xE9es et sont
+    ignor\xE9es; si la derni\xE8re capacit\xE9 \xE0 frapper le lanceur \xE9tait une
+    telle capacit\xE9, la derni\xE8re capacit\xE9 sera utilis\xE9e \xE0 la place. 
+    La liste compl\xE8te des capacit\xE9s ignor\xE9e est: Acidarmure, Acupression,
+    Apr\xE8s Vous, H\xE2te, Interversion, Amn\xE9sie, Anneau Hydro, Aromath\xE9rapie,
+    Brume Capiteuse, Assistance, All\xE8gement, Bouclier, Relais, \xC9ructation,
+    Cognobidon, Patience, Gonflette, Pl\xE9nitude, Camouflage, C\xE9l\xE9bration,
+    Chargeur, Enroulement, Conversion, Conversion 2, Photocopie, Force Cosmique,
+    Cotogarde, Riposte, Vigilance, Mal\xE9diction, Appel D\xE9fense, Boul\u2019Armure,
+    Lien du Destin, D\xE9tection, V\u0153u Destructeur, Reflet, Danse Draco, Champ
+    \xC9lectrifi\xE9, T\xE9nacit\xE9, Tout ou Rien, Garde Florale, Puissance, Mitra-Poing,
+    Par Ici, Prescience, G\xE9o-Contr\xF4le, Champ Herbu, Gravit\xE9, Croissance,
+    Rancune, Partage Garde, Gr\xEAle, \xC9trennes, Armure, Bu\xE9e Noire, Glas de
+    Soin, Appel Soins, Vibra Soin, V\u0153u Soin, Coup d\u2019Main, Mains Jointes,
+    Aiguisage, Grondement, Possessif, Racines, D\xE9luge Plasmique, Mur de Fer, Bouclier
+    Royal, Mur Lumi\xE8re, Air Veinard, Danse Lune, Reflet Magik, Vol Magn\xE9tik,
+    Magn\xE9-Contr\xF4le, Tatamigaeshi, Moi d\u2019Abord, Yoga, M\xE9tronome, Lait
+    \xE0 Boire, Copie, Lilliput, Voile Miroir, Mimique, Brume, Champ Brumeux, Rayon
+    Lune, Aurore, Lance-Boue, Machination, Force Nature, Requiem, Partage Force,
+    Astuce Force, Abri, Boost, Pr\xE9vention, Papillodanse, Poudre Fureur, Danse
+    Pluie, Soin, Recyclage, Protection, Copie-Type, R\xE9g\xE9n\xE9ration, Repos,
+    Poliroche, Imitation, Atterrissage, Fertilisation, Rune Protect, Temp\xEAte de
+    Sable, A\xE9ro Noir, \xC9clair Noir, Chute Noire, Charge Noire, Perc\xE9e Noire,
+    Ciel Noir, Typhon Noir, Ondo Noire, Aff\xFBtage, Exuviation, Chgt Vitesse, Gribouille,
+    Paresse, Blabla Dodo, Saisie, E-Coque, Picots, Pico-D\xE9fense, Rel\xE2che, Trempette,
+    Pi\xE8ge de Roc, Toile Gluante, Stockage, Lutte, Clonage, Z\xE9nith, Avale, Danse
+    Lames, Synth\xE8se, Lumi-Queue, Vent Arri\xE8re, T\xE9l\xE9port, Pics Toxik,
+    Morphing, Tourniquet, Garde Large, V\u0153u, Repli et Rengorgement.\n\nCette
+    capacit\xE9 ne peut pas \xEAtre s\xE9lectionn\xE9e par Assistance, M\xE9tronome,
+    ou Blabla Dodo, ni forc\xE9e par Encore."
+  type: 10
+  power: 0
+  accuracy: 0
+  alwaysHits: 0
+  pp: 20
+  priority: 0
+  category: 0
+  effects:
+    boosts: []
+    status: 0
+    volatileStatus: 0
+  secondaries: []
+  target: 0

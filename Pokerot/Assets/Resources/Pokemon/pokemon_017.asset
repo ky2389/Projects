@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fd68a4b7ad6344ba826f63fe210892, type: 3}
+  m_Name: pokemon_017
+  m_EditorClassIdentifier: 
+  pokemonName: pidgeotto
+  description: 
+  frontSprite: {fileID: 21300000, guid: 42db4e8cc2896b94489e0dbf5d83b021, type: 3}
+  backSprite: {fileID: 21300000, guid: 0eb08cb3c53fb8647b1c0106d7c57a25, type: 3}
+  type1: 1
+  type2: 10
+  maxHp: 63
+  attack: 60
+  defense: 55
+  spAttack: 50
+  spDefense: 50
+  speed: 71
+  expYield: 122
+  growthRate: 1
+  catchRate: 45
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: 060c2a98b30373942881bf3c2d9447b3, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: b611a02b90db06b44912510f2daec624, type: 2}
+    level: 31
+  - moveBase: {fileID: 11400000, guid: 909aa582ffba0d741ad082caed98ba0a, type: 2}
+    level: 21
+  - moveBase: {fileID: 11400000, guid: 4afbdc8be5b21a74e8dd248d7dca5ee8, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 4afbdc8be5b21a74e8dd248d7dca5ee8, type: 2}
+    level: 5
+  - moveBase: {fileID: 11400000, guid: 292971bd67d6afc4a82c494e1e437b20, type: 2}
+    level: 40
+  - moveBase: {fileID: 11400000, guid: 11f21bc9be9339343aad002ad194d64e, type: 2}
+    level: 12
+  - moveBase: {fileID: 11400000, guid: dd4c61d5ff10e5649946bdb2582e4401, type: 2}
+    level: 49

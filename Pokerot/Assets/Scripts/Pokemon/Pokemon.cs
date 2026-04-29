@@ -48,13 +48,18 @@ public class Pokemon
     {
         // Generate Moves
         Moves = new List<Move>();
-        foreach (var move in Base.LearnableMoves)
+        foreach (var move in Base.LearnableMoves ?? new List<LearnableMove>())
         {
-            if (move.Level <= Level)
+            if (move != null && move.Base != null && move.Level <= Level)
                 Moves.Add(new Move(move.Base));
 
             if (Moves.Count >= PokemonBase.MaxNumOfMoves)
                 break;
+        }
+
+        if (Moves.Count == 0)
+        {
+            AddFallbackMove();
         }
 
         Exp = Base.GetExpForLevel(Level);
@@ -240,10 +245,43 @@ public class Pokemon
 
     public Move GetRandomMove()
     {
+        if (Moves == null || Moves.Count == 0)
+            return null;
+
         var movesWithPP = Moves.Where(x => x.PP > 0).ToList();
+        if (movesWithPP.Count == 0)
+            return null;
 
         int r = Random.Range(0, movesWithPP.Count);
         return movesWithPP[r];
+    }
+
+    void AddFallbackMove()
+    {
+        MoveBase fallbackMove = Resources.Load<MoveBase>("Moves/tackle");
+        if (fallbackMove == null)
+        {
+            fallbackMove = Resources.LoadAll<MoveBase>("Moves").FirstOrDefault();
+        }
+
+        if (fallbackMove == null)
+        {
+            fallbackMove = ScriptableObject.CreateInstance<MoveBase>();
+            fallbackMove.name = "tackle";
+            fallbackMove.Name = "Tackle";
+            fallbackMove.Description = "A basic full-body charge.";
+            fallbackMove.Type = PokemonType.Normal;
+            fallbackMove.Power = 40;
+            fallbackMove.Accuracy = 100;
+            fallbackMove.PP = 35;
+            fallbackMove.Category = MoveCategory.Physical;
+            fallbackMove.Target = MoveTarget.Foe;
+            fallbackMove.Effects = new MoveEffects();
+            fallbackMove.Secondaries = new List<SecondaryEffects>();
+        }
+
+        Moves.Add(new Move(fallbackMove));
+        Debug.LogWarning($"{Base.Name} had no available moves at level {Level}. Added fallback move {fallbackMove.Name}.");
     }
 
     public bool OnBeforeMove()

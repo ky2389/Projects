@@ -4057,7 +4057,7 @@ MonoBehaviour:
   backButton: {fileID: 913727163}
   generateButton: {fileID: 809696743}
   loadingIndicator: {fileID: 665189825}
-  chatGPT: {fileID: 1868440119}
+  chatGPT: {fileID: 1868440121}
   imageGen: {fileID: 1454387383}
 --- !u!114 &1454387383
 MonoBehaviour:
@@ -4071,7 +4071,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c3f4a8b9e6d2c1a5f0e3b7d9c2a4e6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openAIApiKey: 
+  poeApiKey: 
+  poeModel: nano-banana-pro
+  poeChatCompletionsApiUrl: https://api.poe.com/v1/chat/completions
+  spriteSize: 96
+  saveDebugImages: 1
+  logPrompts: 1
+  rateLimitRetryCount: 3
+  rateLimitBaseDelaySeconds: 5
+  rateLimitMaxDelaySeconds: 45
 --- !u!1 &1471636034
 GameObject:
   m_ObjectHideFlags: 0
@@ -4990,7 +4998,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1868440120}
-  - component: {fileID: 1868440119}
+  - component: {fileID: 1868440121}
   m_Layer: 0
   m_Name: ChatGPT
   m_TagString: Untagged
@@ -4998,7 +5006,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1868440119
+--- !u!4 &1868440120
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1868440118}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1028.0289, y: 512.3221, z: -4.407047}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1868440121
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5007,18 +5030,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1868440118}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e61546bea7f2a74795ab29cfc5f9657, type: 3}
+  m_Script: {fileID: 11500000, guid: 249333445b7702d42a15be83e0b95874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _apiKey: 
-  _model: 0
-  _maxTokens: 3072
-  _temperature: 0.6
-  _chatbotName: ChatGPT
+  chatGPTResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  _model: qwen2.5:3b
   _initialPrompt: "You are a Pokemon designer. Create a Pokemon based on the given
     animal name. (Or, not even necessarily an animal. Could be any object, like a
-    food name, or a furniture name. ) Follow these rules:\r\n1. Name: Combine the
-    animal's name with a Pokemon-like suffix (e.g., \"Lion\" -> \"Lionite\")\r\n2.
+    food name, or a furniture name. ) Please strictly follow these rules:\r\n1. Name:
+    Combine the animal's name with a Pokemon-like suffix (e.g., \"Lion\" -> \"Lionite\")\r\n2.
     Types: Choose 1-2 types that match the animal's characteristics\r\n3. Moves:
     Create 4 unique moves that make sense for the Pokemon's theme and types\r\n4.
     Balance: Keep move power between 40-120 and accuracy between 70-100\r\nInstructions:\r\nYou\u2019re
@@ -5057,37 +5079,7 @@ MonoBehaviour:
     \"accuracy\": 75,\r\n            \"description\": \"Channels the power of the
     sun into a devastating beam\",\r\n            \"alwaysHits\": false,\r\n           
     \"pp\": 5,\r\n            \"priority\": 0,\r\n            \"category\": \"Special\",\r\n           
-    \"target\": \"Foe\"\r\n        }\r\n    ]\r\n}\r"
-  chatGPTResponse:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1454387382}
-        m_TargetAssemblyTypeName: PokemonCustomizationUI, Assembly-CSharp
-        m_MethodName: OnChatGPTResponse
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!4 &1868440120
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1868440118}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1028.0289, y: 512.3221, z: -4.407047}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+    \"target\": \"Foe\"\r\n        }\r\n    ]\r\n}"
 --- !u!1 &1870979061
 GameObject:
   m_ObjectHideFlags: 0

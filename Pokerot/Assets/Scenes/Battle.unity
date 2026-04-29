@@ -954,15 +954,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   possibleEncounters:
-  - pokemonId: 384
+  - pokemonId: 17
     encounterRate: 0.3
     minLevel: 10
     maxLevel: 20
-  - pokemonId: 727
+  - pokemonId: 23
     encounterRate: 0.3
     minLevel: 10
     maxLevel: 20
-  - pokemonId: 40
+  - pokemonId: 19
     encounterRate: 0.4
     minLevel: 10
     maxLevel: 20

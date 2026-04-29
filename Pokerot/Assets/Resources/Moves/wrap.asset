@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46de2ef9ac2924e4da1d8a3ae1f0f243, type: 3}
+  m_Name: wrap
+  m_EditorClassIdentifier: 
+  name: wrap
+  description: "Inflige des d\xE9g\xE2ts r\xE9guliers.  Pour les 2-5 prochains tours,
+    la cible ne peut pas quitter le terrain et subit 1/16 de ses PV max en d\xE9g\xE2ts
+    \xE0 la fin de chaque tour.  Le lanceur continue d'utiliser d'autres capacit\xE9s
+    pendant ce temps.  Si le lanceur quitte le terrain, cet effet prend fin.\n\nA
+    3/8 chance chacune de frapper 2 ou 3 fois, et 1/8 chance chacune de frapper 4
+    ou 5 fois.  Moyenne \xE0 3 coups par utilisation.\n\nTour Rapide annule cet effet."
+  type: 1
+  power: 15
+  accuracy: 90
+  alwaysHits: 0
+  pp: 20
+  priority: 0
+  category: 0
+  effects:
+    boosts: []
+    status: 0
+    volatileStatus: 0
+  secondaries: []
+  target: 0

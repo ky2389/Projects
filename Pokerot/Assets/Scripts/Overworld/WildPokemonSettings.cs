@@ -15,6 +15,11 @@ public class WildPokemonEncounter
 public class WildPokemonSettings : MonoBehaviour
 {
     [SerializeField] List<WildPokemonEncounter> possibleEncounters;
+    [Header("Custom Pokemon Encounters")]
+    [SerializeField] bool includeCustomPokemon = true;
+    [SerializeField] float customPokemonEncounterRate = 5f;
+    [SerializeField] int customPokemonMinLevel = 2;
+    [SerializeField] int customPokemonMaxLevel = 5;
 
     private void OnValidate()
     {
@@ -39,11 +44,23 @@ public class WildPokemonSettings : MonoBehaviour
                 encounter.maxLevel = Mathf.Clamp(encounter.maxLevel, 1, 100);
             }
         }
+
+        customPokemonEncounterRate = Mathf.Max(0f, customPokemonEncounterRate);
+        customPokemonMinLevel = Mathf.Clamp(customPokemonMinLevel, 1, 100);
+        customPokemonMaxLevel = Mathf.Clamp(customPokemonMaxLevel, 1, 100);
+        if (customPokemonMinLevel > customPokemonMaxLevel)
+        {
+            customPokemonMaxLevel = customPokemonMinLevel;
+        }
     }
 
-    public async Task<Pokemon> GetRandomWildPokemon()
+    public async Task<Pokemon> GetRandomWildPokemon(PokemonParty playerParty = null)
     {
-        if (possibleEncounters == null || possibleEncounters.Count == 0)
+        PokemonBase[] customPokemon = GetCustomPokemonEncounters(playerParty);
+        bool hasConfiguredEncounters = possibleEncounters != null && possibleEncounters.Count > 0;
+        bool hasCustomEncounters = customPokemon.Length > 0 && customPokemonEncounterRate > 0f;
+
+        if (!hasConfiguredEncounters && !hasCustomEncounters)
         {
             Debug.LogError("No possible Pokemon encounters defined!");
             return null;
@@ -51,14 +68,22 @@ public class WildPokemonSettings : MonoBehaviour
 
         // Calculate total encounter rate
         float totalRate = 0f;
-        foreach (var encounter in possibleEncounters)
+        if (hasConfiguredEncounters)
         {
-            if (encounter.encounterRate <= 0)
+            foreach (var encounter in possibleEncounters)
             {
-                Debug.LogWarning($"Encounter rate for Pokemon ID {encounter.pokemonId} is 0 or negative. Skipping.");
-                continue;
+                if (encounter.encounterRate <= 0)
+                {
+                    Debug.LogWarning($"Encounter rate for Pokemon ID {encounter.pokemonId} is 0 or negative. Skipping.");
+                    continue;
+                }
+                totalRate += encounter.encounterRate;
             }
-            totalRate += encounter.encounterRate;
+        }
+
+        if (hasCustomEncounters)
+        {
+            totalRate += customPokemon.Length * customPokemonEncounterRate;
         }
 
         if (totalRate <= 0)
@@ -73,16 +98,29 @@ public class WildPokemonSettings : MonoBehaviour
 
         // Find the selected Pokemon based on encounter rates
         WildPokemonEncounter selectedEncounter = null;
-        foreach (var encounter in possibleEncounters)
+        if (hasConfiguredEncounters)
         {
-            if (encounter.encounterRate <= 0) continue;
-            
-            currentSum += encounter.encounterRate;
-            if (randomValue <= currentSum)
+            foreach (var encounter in possibleEncounters)
             {
-                selectedEncounter = encounter;
-                break;
+                if (encounter.encounterRate <= 0) continue;
+                
+                currentSum += encounter.encounterRate;
+                if (randomValue <= currentSum)
+                {
+                    selectedEncounter = encounter;
+                    break;
+                }
             }
+        }
+
+        if (selectedEncounter == null && hasCustomEncounters)
+        {
+            PokemonBase customPokemonBase = customPokemon[Random.Range(0, customPokemon.Length)];
+            int customLevel = Random.Range(customPokemonMinLevel, customPokemonMaxLevel + 1);
+            Pokemon pokemon = new Pokemon(customPokemonBase, customLevel);
+            pokemon.Init();
+            Debug.Log($"Wild custom Pokemon appeared: {customPokemonBase.Name} Lv.{customLevel}");
+            return pokemon;
         }
 
         if (selectedEncounter == null)
@@ -105,5 +143,59 @@ public class WildPokemonSettings : MonoBehaviour
 
         Debug.LogError($"Failed to load Pokemon with ID {selectedEncounter.pokemonId}");
         return null;
+    }
+
+    private PokemonBase[] GetCustomPokemonEncounters(PokemonParty playerParty)
+    {
+        if (!includeCustomPokemon)
+        {
+            return new PokemonBase[0];
+        }
+
+        PokemonBase[] customPokemon = Resources.LoadAll<PokemonBase>("CustomPokemon");
+        if (customPokemon == null || customPokemon.Length == 0)
+        {
+            return new PokemonBase[0];
+        }
+
+        List<PokemonBase> validPokemon = new List<PokemonBase>();
+        foreach (PokemonBase pokemonBase in customPokemon)
+        {
+            if (pokemonBase != null && !IsInPlayerParty(pokemonBase, playerParty))
+            {
+                validPokemon.Add(pokemonBase);
+            }
+        }
+
+        return validPokemon.ToArray();
+    }
+
+    private bool IsInPlayerParty(PokemonBase pokemonBase, PokemonParty playerParty)
+    {
+        if (pokemonBase == null || playerParty == null || playerParty.Pokemons == null)
+        {
+            return false;
+        }
+
+        foreach (Pokemon partyPokemon in playerParty.Pokemons)
+        {
+            if (partyPokemon?.Base == null)
+            {
+                continue;
+            }
+
+            if (partyPokemon.Base == pokemonBase)
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(partyPokemon.Base.Name) &&
+                string.Equals(partyPokemon.Base.Name, pokemonBase.Name, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 } 

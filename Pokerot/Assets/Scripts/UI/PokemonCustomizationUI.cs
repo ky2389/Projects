@@ -1,11 +1,9 @@
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Threading.Tasks;
 using System.Collections;
 using ChatGPTWrapper;
 #if UNITY_EDITOR
@@ -34,14 +32,17 @@ public class PokemonCustomizationUI : MonoBehaviour
     private PokemonType selectedType2;
     private string defaultSpritePathBack = "Pokemon/Sprites/sprite_-1547647098";
     private string defaultSpritePathFront = "Pokemon/Sprites/sprite_989815560";
-    private const string CUSTOM_POKEMON_PATH = "Assets/Resources/CustomPokemon";
-    private const string CUSTOM_SPRITES_PATH = "Assets/Resources/CustomSprites";
-    [SerializeField] private ChatGPTConversation chatGPT;
+    private const string CUSTOM_POKEMON_ASSET_PATH = "Assets/Resources/CustomPokemon";
+    private const string CUSTOM_MOVES_ASSET_PATH = "Assets/Resources/CustomMoves";
+    private const string CUSTOM_SPRITES_ASSET_PATH = "Assets/Resources/CustomSprites";
+    private const string CUSTOM_CONTENT_FOLDER = "CustomPokemon";
+    [SerializeField] private LLMConversationBase chatGPT;
     [SerializeField] private ImageGenerator imageGen;
     // [SerializeField] private ImageGenerator imageGenerator; // Add this component manually and assign in Inspector
     private PokemonData currentPokemonData;
     private Sprite generatedFrontSprite;
     private Sprite generatedBackSprite;
+    private bool allowGeneratedTypesForCurrentRequest;
 
     private void Start()
     {
@@ -50,13 +51,16 @@ public class PokemonCustomizationUI : MonoBehaviour
         UpdatePreview();
         loadingIndicator.SetActive(false);
 
-        // Create custom sprites directory if it doesn't exist
-        #if UNITY_EDITOR
-        if (!Directory.Exists(CUSTOM_SPRITES_PATH))
+        EnsureRuntimeContentDirectory();
+
+        if (imageGen == null)
         {
-            Directory.CreateDirectory(CUSTOM_SPRITES_PATH);
+            imageGen = FindFirstObjectByType<ImageGenerator>();
+            if (imageGen != null)
+            {
+                Debug.Log("ImageGenerator was not assigned in the inspector, found one in the scene automatically.");
+            }
         }
-        #endif
 
         // Initialize ChatGPT
         if (chatGPT != null)
@@ -66,7 +70,7 @@ public class PokemonCustomizationUI : MonoBehaviour
         }
         else
         {
-            Debug.LogError("ChatGPTConversation component is not assigned!");
+            Debug.LogError("LLM conversation component is not assigned!");
         }
     }
 
@@ -98,11 +102,13 @@ public class PokemonCustomizationUI : MonoBehaviour
         // Add listeners
         type1Dropdown.onValueChanged.AddListener((value) => {
             selectedType1 = value == 0 ? PokemonType.None : types[value - 1];
+            NormalizeSelectedTypes();
             UpdatePreview();
         });
 
         type2Dropdown.onValueChanged.AddListener((value) => {
             selectedType2 = value == 0 ? PokemonType.None : types[value - 1];
+            NormalizeSelectedTypes();
             UpdatePreview();
         });
     }
@@ -124,18 +130,17 @@ public class PokemonCustomizationUI : MonoBehaviour
 
         if (chatGPT == null)
         {
-            Debug.LogError("ChatGPTConversation component is not assigned!");
+            Debug.LogError("LLM conversation component is not assigned!");
             return;
         }
 
         loadingIndicator.SetActive(true);
         generateButton.interactable = false;
 
-        // Updated prompt to request image generation as well
-        string prompt = $"Create a Pokemon based on this animal: {animalNameInput.text}. " +
-                      "First, provide a JSON object with the Pokemon data, then I need you to generate a sprite image for this Pokemon. " +
-                      "After the JSON, please generate a Pokemon sprite image in a simple, colorful cartoon style similar to classic Pokemon sprites. " +
-                      "The image should be suitable for a game, showing the Pokemon from a front view against a transparent or white background.";
+        NormalizeSelectedTypes();
+        allowGeneratedTypesForCurrentRequest = !HasSelectedType();
+
+        string prompt = BuildPokemonGenerationPrompt();
 
         chatGPT.SendToChatGPT(prompt);
     }
@@ -150,6 +155,7 @@ public class PokemonCustomizationUI : MonoBehaviour
             if (string.IsNullOrEmpty(jsonContent))
             {
                 Debug.LogError("Could not extract JSON from ChatGPT response");
+                CompleteGenerationRequest();
                 return;
             }
 
@@ -157,15 +163,20 @@ public class PokemonCustomizationUI : MonoBehaviour
 
             // Update UI with generated data
             pokemonNameInput.text = currentPokemonData.name;
-            selectedType1 = (PokemonType)System.Enum.Parse(typeof(PokemonType), currentPokemonData.type1);
-            selectedType2 = (PokemonType)System.Enum.Parse(typeof(PokemonType), currentPokemonData.type2);
-
-            // Update dropdowns to match selected types
-            type1Dropdown.value = type1Dropdown.options.FindIndex(option => option.text == currentPokemonData.type1);
-            type2Dropdown.value = type2Dropdown.options.FindIndex(option => option.text == currentPokemonData.type2);
-
-            // Create and save new moves
-            List<LearnableMove> learnableMoves = CreateNewMoves(currentPokemonData.moves);
+            if (allowGeneratedTypesForCurrentRequest && !HasSelectedType())
+            {
+                selectedType1 = ParsePokemonTypeOrNone(currentPokemonData.type1);
+                selectedType2 = ParsePokemonTypeOrNone(currentPokemonData.type2);
+                NormalizeSelectedTypes();
+                SetDropdownToType(type1Dropdown, selectedType1);
+                SetDropdownToType(type2Dropdown, selectedType2);
+            }
+            else
+            {
+                NormalizeSelectedTypes();
+                currentPokemonData.type1 = selectedType1.ToString();
+                currentPokemonData.type2 = selectedType2.ToString();
+            }
 
             // Start image generation process
             StartCoroutine(GeneratePokemonSprites());
@@ -176,13 +187,7 @@ public class PokemonCustomizationUI : MonoBehaviour
         {
             Debug.LogError($"Error generating Pokemon: {e.Message}");
             // Show error message to user
-        }
-        finally
-        {
-            loadingIndicator.SetActive(false);
-            generateButton.interactable = true;
-            // Unsubscribe from the response event
-            chatGPT.chatGPTResponse.RemoveListener(OnChatGPTResponse);
+            CompleteGenerationRequest();
         }
     }
 
@@ -201,23 +206,88 @@ public class PokemonCustomizationUI : MonoBehaviour
         return response.Trim();
     }
 
+    private string BuildPokemonGenerationPrompt()
+    {
+        AIPromptConfig promptConfig = AIPromptConfig.Load();
+        string typeInstruction = allowGeneratedTypesForCurrentRequest
+            ? promptConfig.pokemonTypeAutoInstruction
+            : AIPromptConfig.FillTemplate(
+                promptConfig.pokemonTypeLockedInstructionTemplate,
+                ("selectedTypeDescription", GetSelectedTypeDescription()),
+                ("type1", selectedType1.ToString()),
+                ("type2", selectedType2.ToString()));
+
+        return AIPromptConfig.FillTemplate(
+            promptConfig.pokemonDataPromptTemplate,
+            ("animalName", animalNameInput.text),
+            ("typeInstruction", typeInstruction),
+            ("moveDesignInstruction", promptConfig.moveDesignInstruction));
+    }
+
+    private bool HasSelectedType()
+    {
+        return selectedType1 != PokemonType.None || selectedType2 != PokemonType.None;
+    }
+
+    private void NormalizeSelectedTypes()
+    {
+        if (selectedType1 == PokemonType.None && selectedType2 != PokemonType.None)
+        {
+            selectedType1 = selectedType2;
+            selectedType2 = PokemonType.None;
+            SetDropdownToType(type1Dropdown, selectedType1);
+            SetDropdownToType(type2Dropdown, selectedType2);
+        }
+
+        if (selectedType1 == selectedType2)
+        {
+            selectedType2 = PokemonType.None;
+            SetDropdownToType(type2Dropdown, selectedType2);
+        }
+    }
+
+    private string GetSelectedTypeDescription()
+    {
+        if (selectedType2 == PokemonType.None)
+        {
+            return $"a single {selectedType1}-type";
+        }
+
+        return $"a dual {selectedType1}/{selectedType2}-type";
+    }
+
+    private PokemonType ParsePokemonTypeOrNone(string typeName)
+    {
+        if (System.Enum.TryParse(typeName, true, out PokemonType parsedType))
+        {
+            return parsedType;
+        }
+
+        return PokemonType.None;
+    }
+
+    private void SetDropdownToType(TMP_Dropdown dropdown, PokemonType type)
+    {
+        int optionIndex = dropdown.options.FindIndex(option => option.text == type.ToString());
+        dropdown.value = optionIndex >= 0 ? optionIndex : 0;
+    }
+
     private IEnumerator GeneratePokemonSprites()
     {
-        // Note: To use DALL-E image generation, add the ImageGenerator component to this GameObject
-        // and assign it in the Inspector. For now, using placeholder sprites.
-        
-        
         if (imageGen != null && currentPokemonData != null)
         {
             imageGen.GeneratePokemonSprites(
                 currentPokemonData.name, 
                 currentPokemonData.description, 
+                animalNameInput.text,
+                selectedType1,
+                selectedType2,
                 OnSpritesGenerated
             );
         }
         else
         {
-            // Using placeholder sprites
+            Debug.LogWarning($"Using placeholder sprites because ImageGenerator is {(imageGen == null ? "not assigned/found" : "available")} and Pokemon data is {(currentPokemonData == null ? "missing" : "available")}.");
             yield return CreatePlaceholderSprite(currentPokemonData?.name ?? "UnknownPokemon");
         }
     }
@@ -229,6 +299,7 @@ public class PokemonCustomizationUI : MonoBehaviour
             // Convert textures to sprites
             generatedFrontSprite = Sprite.Create(frontTexture, new Rect(0, 0, frontTexture.width, frontTexture.height), new Vector2(0.5f, 0.5f));
             generatedBackSprite = Sprite.Create(backTexture, new Rect(0, 0, backTexture.width, backTexture.height), new Vector2(0.5f, 0.5f));
+            pokemonSprite.color = Color.white;
 
             // Save sprites to files
             SaveSpritesToFiles(frontTexture, backTexture, currentPokemonData.name);
@@ -237,6 +308,7 @@ public class PokemonCustomizationUI : MonoBehaviour
             UpdatePreview();
 
             Debug.Log($"Successfully generated sprites for {currentPokemonData.name}");
+            CompleteGenerationRequest();
         }
         else
         {
@@ -248,20 +320,23 @@ public class PokemonCustomizationUI : MonoBehaviour
 
     private void SaveSpritesToFiles(Texture2D frontTexture, Texture2D backTexture, string pokemonName)
     {
-        #if UNITY_EDITOR
         byte[] frontPngData = frontTexture.EncodeToPNG();
         byte[] backPngData = backTexture.EncodeToPNG();
         
         string safeName = string.Join("_", pokemonName.Split(Path.GetInvalidFileNameChars()));
-        string frontPath = $"{CUSTOM_SPRITES_PATH}/{safeName}_front.png";
-        string backPath = $"{CUSTOM_SPRITES_PATH}/{safeName}_back.png";
+        string frontPath = Path.Combine(RuntimeContentDirectory, $"{safeName}_front.png");
+        string backPath = Path.Combine(RuntimeContentDirectory, $"{safeName}_back.png");
         
         File.WriteAllBytes(frontPath, frontPngData);
         File.WriteAllBytes(backPath, backPngData);
         
+        #if UNITY_EDITOR
+        SaveSpriteAssetCopy(frontPngData, $"{safeName}_front");
+        SaveSpriteAssetCopy(backPngData, $"{safeName}_back");
         AssetDatabase.Refresh();
-        Debug.Log($"Saved sprites to {frontPath} and {backPath}");
         #endif
+
+        Debug.Log($"Saved sprites to {frontPath} and {backPath}");
     }
 
     private IEnumerator GenerateSpriteWithDALLE(string pokemonName, string description)
@@ -308,21 +383,9 @@ public class PokemonCustomizationUI : MonoBehaviour
         generatedFrontSprite = Sprite.Create(frontTexture, new Rect(0, 0, 96, 96), new Vector2(0.5f, 0.5f));
         generatedBackSprite = Sprite.Create(backTexture, new Rect(0, 0, 96, 96), new Vector2(0.5f, 0.5f));
         
-        // Save the textures as PNG files
-        #if UNITY_EDITOR
-        byte[] frontPngData = frontTexture.EncodeToPNG();
-        byte[] backPngData = backTexture.EncodeToPNG();
+        SaveSpritesToFiles(frontTexture, backTexture, pokemonName);
         
-        string safeName = string.Join("_", pokemonName.Split(Path.GetInvalidFileNameChars()));
-        string frontPath = $"{CUSTOM_SPRITES_PATH}/{safeName}_front.png";
-        string backPath = $"{CUSTOM_SPRITES_PATH}/{safeName}_back.png";
-        
-        File.WriteAllBytes(frontPath, frontPngData);
-        File.WriteAllBytes(backPath, backPngData);
-        
-        AssetDatabase.Refresh();
-        #endif
-        
+        CompleteGenerationRequest();
         yield return null;
     }
 
@@ -356,7 +419,10 @@ public class PokemonCustomizationUI : MonoBehaviour
         // Update sprite - use generated sprite if available, otherwise use default
         Sprite sprite = generatedFrontSprite != null ? generatedFrontSprite : Resources.Load<Sprite>(defaultSpritePathFront);
         if (sprite != null)
+        {
+            pokemonSprite.color = Color.white;
             pokemonSprite.sprite = sprite;
+        }
 
         // Update preview text
         string type2Text = selectedType2 == PokemonType.None ? "" : $" / {selectedType2}";
@@ -394,6 +460,14 @@ public class PokemonCustomizationUI : MonoBehaviour
 
     private PokemonBase CreateCustomPokemon()
     {
+        NormalizeSelectedTypes();
+
+        if (currentPokemonData != null)
+        {
+            currentPokemonData.type1 = selectedType1.ToString();
+            currentPokemonData.type2 = selectedType2.ToString();
+        }
+
         PokemonBase pokemon = ScriptableObject.CreateInstance<PokemonBase>();
         
         // Set basic info
@@ -442,19 +516,33 @@ public class PokemonCustomizationUI : MonoBehaviour
 
     private void SaveCustomPokemon(PokemonBase pokemon)
     {
+        string safeName = string.Join("_", pokemon.Name.Split(Path.GetInvalidFileNameChars()));
+        string jsonPath = Path.Combine(RuntimeContentDirectory, $"{safeName}.json");
+        if (currentPokemonData != null)
+        {
+            File.WriteAllText(jsonPath, JsonUtility.ToJson(currentPokemonData, true));
+            Debug.Log($"Saved custom Pokemon data to: {jsonPath}");
+        }
+
         #if UNITY_EDITOR
         // Create directory if it doesn't exist
-        if (!Directory.Exists(CUSTOM_POKEMON_PATH))
+        if (!Directory.Exists(CUSTOM_POKEMON_ASSET_PATH))
         {
-            Directory.CreateDirectory(CUSTOM_POKEMON_PATH);
+            Directory.CreateDirectory(CUSTOM_POKEMON_ASSET_PATH);
         }
 
         // Create a unique filename based on the Pokemon's name
-        string safeName = string.Join("_", pokemon.Name.Split(Path.GetInvalidFileNameChars()));
-        string assetPath = $"{CUSTOM_POKEMON_PATH}/{safeName}.asset";
+        string assetPath = $"{CUSTOM_POKEMON_ASSET_PATH}/{safeName}.asset";
 
         // Save the asset
-        AssetDatabase.CreateAsset(pokemon, assetPath);
+        if (AssetDatabase.LoadAssetAtPath<PokemonBase>(assetPath) == null)
+        {
+            AssetDatabase.CreateAsset(pokemon, assetPath);
+        }
+        else
+        {
+            Debug.LogWarning($"Custom Pokemon asset already exists, keeping runtime Pokemon and skipping asset overwrite: {assetPath}");
+        }
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
@@ -466,37 +554,61 @@ public class PokemonCustomizationUI : MonoBehaviour
     {
         List<LearnableMove> learnableMoves = new List<LearnableMove>();
 
+        if (movesData == null)
+        {
+            return learnableMoves;
+        }
+
         #if UNITY_EDITOR
         // Create directory if it doesn't exist
-        string movesPath = "Assets/Resources/CustomMoves";
-        if (!Directory.Exists(movesPath))
+        if (!Directory.Exists(CUSTOM_MOVES_ASSET_PATH))
         {
-            Directory.CreateDirectory(movesPath);
+            Directory.CreateDirectory(CUSTOM_MOVES_ASSET_PATH);
         }
+        #endif
 
         foreach (var moveData in movesData)
         {
-            // Create new move asset
+            MoveBase moveBase = FindExistingMove(moveData.name);
+            if (moveBase != null)
+            {
+                learnableMoves.Add(new LearnableMove
+                {
+                    Base = moveBase,
+                    Level = 1
+                });
+                continue;
+            }
+
+            // Create new custom move asset
             MoveBase newMove = ScriptableObject.CreateInstance<MoveBase>();
+            newMove.name = moveData.name;
             newMove.Name = moveData.name;
-            newMove.Type = (PokemonType)System.Enum.Parse(typeof(PokemonType), moveData.type);
+            newMove.Type = ParsePokemonTypeOrNone(moveData.type);
             newMove.Power = moveData.power;
             newMove.Accuracy = moveData.accuracy;
             newMove.Description = moveData.description;
             newMove.AlwaysHits = moveData.alwaysHits;
             newMove.PP = moveData.pp;
             newMove.Priority = moveData.priority;
-            newMove.Category = (MoveCategory)System.Enum.Parse(typeof(MoveCategory), moveData.category);
-            newMove.Target = (MoveTarget)System.Enum.Parse(typeof(MoveTarget), moveData.target);
-
-            // Initialize empty effects
+            newMove.Category = ParseMoveCategoryOrDefault(moveData.category);
+            newMove.Target = ParseMoveTargetOrDefault(moveData.target);
             newMove.Effects = new MoveEffects();
             newMove.Secondaries = new List<SecondaryEffects>();
 
             // Save move asset
+            #if UNITY_EDITOR
             string safeName = string.Join("_", moveData.name.Split(Path.GetInvalidFileNameChars()));
-            string assetPath = $"{movesPath}/{safeName}.asset";
-            AssetDatabase.CreateAsset(newMove, assetPath);
+            string assetPath = $"{CUSTOM_MOVES_ASSET_PATH}/{safeName}.asset";
+            if (AssetDatabase.LoadAssetAtPath<MoveBase>(assetPath) == null)
+            {
+                AssetDatabase.CreateAsset(newMove, assetPath);
+            }
+            else
+            {
+                Debug.LogWarning($"Custom move asset already exists, keeping runtime move and skipping asset overwrite: {assetPath}");
+            }
+            #endif
 
             // Create learnable move
             LearnableMove learnableMove = new LearnableMove
@@ -507,12 +619,89 @@ public class PokemonCustomizationUI : MonoBehaviour
             learnableMoves.Add(learnableMove);
         }
 
+        #if UNITY_EDITOR
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         #endif
 
         return learnableMoves;
     }
+
+    private MoveBase FindExistingMove(string moveName)
+    {
+        if (string.IsNullOrWhiteSpace(moveName))
+        {
+            return null;
+        }
+
+        string normalizedRequestedName = NormalizeMoveName(moveName);
+        return Resources.LoadAll<MoveBase>("Moves")
+            .FirstOrDefault(move =>
+                NormalizeMoveName(move.Name) == normalizedRequestedName ||
+                NormalizeMoveName(move.name) == normalizedRequestedName);
+    }
+
+    private string NormalizeMoveName(string moveName)
+    {
+        if (string.IsNullOrWhiteSpace(moveName))
+        {
+            return "";
+        }
+
+        return new string(moveName
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+    }
+
+    private MoveCategory ParseMoveCategoryOrDefault(string category)
+    {
+        if (System.Enum.TryParse(category, true, out MoveCategory parsedCategory))
+        {
+            return parsedCategory;
+        }
+
+        return MoveCategory.Physical;
+    }
+
+    private MoveTarget ParseMoveTargetOrDefault(string target)
+    {
+        if (System.Enum.TryParse(target, true, out MoveTarget parsedTarget))
+        {
+            return parsedTarget;
+        }
+
+        return MoveTarget.Foe;
+    }
+
+    private string RuntimeContentDirectory => Path.Combine(Application.persistentDataPath, CUSTOM_CONTENT_FOLDER);
+
+    private void EnsureRuntimeContentDirectory()
+    {
+        if (!Directory.Exists(RuntimeContentDirectory))
+        {
+            Directory.CreateDirectory(RuntimeContentDirectory);
+        }
+    }
+
+    private void CompleteGenerationRequest()
+    {
+        loadingIndicator.SetActive(false);
+        generateButton.interactable = true;
+    }
+
+    #if UNITY_EDITOR
+    private void SaveSpriteAssetCopy(byte[] pngData, string spriteName)
+    {
+        if (!Directory.Exists(CUSTOM_SPRITES_ASSET_PATH))
+        {
+            Directory.CreateDirectory(CUSTOM_SPRITES_ASSET_PATH);
+        }
+
+        string spritePath = $"{CUSTOM_SPRITES_ASSET_PATH}/{spriteName}.png";
+        File.WriteAllBytes(spritePath, pngData);
+    }
+    #endif
 
     void Update()
     {

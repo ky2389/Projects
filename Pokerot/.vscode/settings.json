@@ -26,7 +26,7 @@
         "**/Logs/**": true,
         "**/Build/**": true
     },
-    "dotnet.defaultSolution": "Final Project.sln",
+    "dotnet.defaultSolution": "Pokerot.sln",
     "dotrush.roslyn.projectOrSolutionFiles": [
         "d:\\Unity\\IGP Projects\\IGP assignments\\Final Project\\Final Project.sln",
         "d:\\Unity\\IGP Projects\\IGP assignments\\Final Project\\LeBryan_P03A-main.sln",
