@@ -32,12 +32,16 @@ Main systems:
 3. Open `Assets/Scenes/MainMenu.unity` or `Assets/Scenes/Customize.unity`.
 4. Press Play.
 
-The AI features need API keys. You can either set environment variables:
+The AI features need API keys. For a built Windows game, put a file named `LocalApiSecrets.json` in the same folder as `Pokerot.exe`:
 
-- `POE_API_KEY` for sprite generation.
-- `OPENAI_API_KEY` if you want to use the backup OpenAI chat path.
+```text
+Pokerot.exe
+LocalApiSecrets.json
+Pokerot_Data/
+UnityPlayer.dll
+```
 
-Or create a local file named `LocalApiSecrets.json` in the project root:
+The file should look like this:
 
 ```json
 {
@@ -46,7 +50,7 @@ Or create a local file named `LocalApiSecrets.json` in the project root:
 }
 ```
 
-That file is ignored by Git. `LocalApiSecrets.example.json` is included as a safe template.
+For Unity Editor testing, put the same `LocalApiSecrets.json` file in the project root. The game can also read `POE_API_KEY` and `OPENAI_API_KEY` environment variables, but the JSON file is the easiest option. `LocalApiSecrets.example.json` is included as a safe template.
 
 ## Current State
 

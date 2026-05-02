@@ -14,6 +14,10 @@ public class WildPokemonEncounter
 
 public class WildPokemonSettings : MonoBehaviour
 {
+    private const int DefaultCustomBaseStat = 80;
+    private const int DefaultCustomExpYield = 64;
+    private const int DefaultCustomCatchRate = 45;
+
     [SerializeField] List<WildPokemonEncounter> possibleEncounters;
     [Header("Custom Pokemon Encounters")]
     [SerializeField] bool includeCustomPokemon = true;
@@ -163,6 +167,7 @@ public class WildPokemonSettings : MonoBehaviour
         {
             if (pokemonBase != null && !IsInPlayerParty(pokemonBase, playerParty))
             {
+                EnsureCustomPokemonReadyForBattle(pokemonBase);
                 validPokemon.Add(pokemonBase);
             }
         }
@@ -197,5 +202,85 @@ public class WildPokemonSettings : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void EnsureCustomPokemonReadyForBattle(PokemonBase pokemonBase)
+    {
+        string safeName = GetSafeResourceName(pokemonBase.Name);
+
+        if (pokemonBase.FrontSprite == null)
+        {
+            pokemonBase.FrontSprite = LoadCustomSprite($"{safeName}_front");
+        }
+
+        if (pokemonBase.BackSprite == null)
+        {
+            pokemonBase.BackSprite = LoadCustomSprite($"{safeName}_back");
+        }
+
+        if (pokemonBase.MaxHp <= 0) pokemonBase.MaxHp = DefaultCustomBaseStat;
+        if (pokemonBase.Attack <= 0) pokemonBase.Attack = DefaultCustomBaseStat;
+        if (pokemonBase.Defense <= 0) pokemonBase.Defense = DefaultCustomBaseStat;
+        if (pokemonBase.SpAttack <= 0) pokemonBase.SpAttack = DefaultCustomBaseStat;
+        if (pokemonBase.SpDefense <= 0) pokemonBase.SpDefense = DefaultCustomBaseStat;
+        if (pokemonBase.Speed <= 0) pokemonBase.Speed = DefaultCustomBaseStat;
+        if (pokemonBase.ExpYield <= 0) pokemonBase.ExpYield = DefaultCustomExpYield;
+        if (pokemonBase.CatchRate <= 0) pokemonBase.CatchRate = DefaultCustomCatchRate;
+
+        pokemonBase.GrowthRate = GrowthRate.MediumFast;
+        pokemonBase.LearnableMoves = GetValidLearnableMoves(pokemonBase.LearnableMoves);
+    }
+
+    private Sprite LoadCustomSprite(string spriteName)
+    {
+        string resourcePath = $"CustomSprites/{spriteName}";
+        Sprite sprite = Resources.Load<Sprite>(resourcePath);
+        if (sprite != null)
+        {
+            return sprite;
+        }
+
+        Texture2D texture = Resources.Load<Texture2D>(resourcePath);
+        if (texture == null)
+        {
+            Debug.LogWarning($"Could not load custom Pokemon sprite at Resources/{resourcePath}");
+            return null;
+        }
+
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+    }
+
+    private List<LearnableMove> GetValidLearnableMoves(List<LearnableMove> learnableMoves)
+    {
+        List<LearnableMove> validMoves = new List<LearnableMove>();
+        if (learnableMoves == null)
+        {
+            return validMoves;
+        }
+
+        foreach (LearnableMove learnableMove in learnableMoves)
+        {
+            if (learnableMove != null && learnableMove.Base != null)
+            {
+                validMoves.Add(learnableMove);
+            }
+        }
+
+        return validMoves;
+    }
+
+    private string GetSafeResourceName(string pokemonName)
+    {
+        if (string.IsNullOrWhiteSpace(pokemonName))
+        {
+            return "";
+        }
+
+        foreach (char invalidChar in System.IO.Path.GetInvalidFileNameChars())
+        {
+            pokemonName = pokemonName.Replace(invalidChar, '_');
+        }
+
+        return pokemonName;
     }
 } 

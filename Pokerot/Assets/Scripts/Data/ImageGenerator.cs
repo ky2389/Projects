@@ -4,9 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class ImageGenerator : MonoBehaviour
 {
@@ -14,12 +11,10 @@ public class ImageGenerator : MonoBehaviour
     [SerializeField] private string poeModel = "Nano-Banana-2";
     [SerializeField] private string poeChatCompletionsApiUrl = "https://api.poe.com/v1/chat/completions";
     [SerializeField] private int spriteSize = 96;
-    [SerializeField] private bool saveDebugImages = true;
     [SerializeField] private bool logPrompts = true;
     [SerializeField] private int rateLimitRetryCount = 3;
     [SerializeField] private float rateLimitBaseDelaySeconds = 5f;
     [SerializeField] private float rateLimitMaxDelaySeconds = 45f;
-    private const string EDITOR_DEBUG_IMAGE_PATH = "Assets/Resources/CustomSprites/ImageDebug";
 
     private string currentPokemonName;
     private string currentViewName;
@@ -80,11 +75,8 @@ public class ImageGenerator : MonoBehaviour
         {
             if (success && sheetTexture != null)
             {
-                SaveDebugImage(sheetTexture, "sheet", "raw");
                 Texture2D frontSprite = ExtractSpriteFromSheet(sheetTexture, true);
                 Texture2D backSprite = ExtractSpriteFromSheet(sheetTexture, false);
-                SaveDebugImage(frontSprite, "front", "sprite");
-                SaveDebugImage(backSprite, "back", "sprite");
                 callback?.Invoke(frontSprite, backSprite, true);
             }
             else
@@ -469,45 +461,6 @@ public class ImageGenerator : MonoBehaviour
         return cropped;
     }
 
-    private void SaveDebugImage(Texture2D texture, string viewName, string stage)
-    {
-        if (!saveDebugImages || texture == null)
-        {
-            return;
-        }
-
-        try
-        {
-            string safeName = string.Join("_", (currentPokemonName ?? "pokemon").Split(System.IO.Path.GetInvalidFileNameChars()));
-            string debugDirectory = System.IO.Path.Combine(Application.persistentDataPath, "ImageDebug");
-            if (!System.IO.Directory.Exists(debugDirectory))
-            {
-                System.IO.Directory.CreateDirectory(debugDirectory);
-            }
-
-            string path = System.IO.Path.Combine(debugDirectory, $"{safeName}_{viewName}_{stage}.png");
-            byte[] pngData = texture.EncodeToPNG();
-            System.IO.File.WriteAllBytes(path, pngData);
-            Debug.Log($"Saved debug image: {path}");
-
-            #if UNITY_EDITOR
-            if (!System.IO.Directory.Exists(EDITOR_DEBUG_IMAGE_PATH))
-            {
-                System.IO.Directory.CreateDirectory(EDITOR_DEBUG_IMAGE_PATH);
-            }
-
-            string editorPath = $"{EDITOR_DEBUG_IMAGE_PATH}/{safeName}_{viewName}_{stage}.png";
-            System.IO.File.WriteAllBytes(editorPath, pngData);
-            AssetDatabase.Refresh();
-            Debug.Log($"Saved editor debug image: {editorPath}");
-            #endif
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"Failed to save debug image: {e.Message}");
-        }
-    }
-
     private Texture2D CreateBackSpriteFromFront(Texture2D frontTexture)
     {
         // Create a back sprite by darkening and possibly flipping the front sprite
@@ -645,36 +598,48 @@ public class ApiSecretConfig
             return cachedConfig;
         }
 
-        string secretsPath = GetLocalSecretsPath();
-        if (string.IsNullOrEmpty(secretsPath) || !System.IO.File.Exists(secretsPath))
+        foreach (string secretsPath in GetLocalSecretsPaths())
         {
-            cachedConfig = new ApiSecretConfig();
-            return cachedConfig;
-        }
-
-        try
-        {
-            cachedConfig = JsonUtility.FromJson<ApiSecretConfig>(System.IO.File.ReadAllText(secretsPath));
-            if (cachedConfig == null)
+            if (string.IsNullOrEmpty(secretsPath) || !System.IO.File.Exists(secretsPath))
             {
-                cachedConfig = new ApiSecretConfig();
+                continue;
+            }
+
+            try
+            {
+                cachedConfig = JsonUtility.FromJson<ApiSecretConfig>(System.IO.File.ReadAllText(secretsPath));
+                if (cachedConfig == null)
+                {
+                    cachedConfig = new ApiSecretConfig();
+                }
+
+                return cachedConfig;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to read local API secrets from {secretsPath}: {e.Message}");
             }
         }
-        catch (Exception e)
-        {
-            cachedConfig = new ApiSecretConfig();
-            Debug.LogWarning($"Failed to read local API secrets from {secretsPath}: {e.Message}");
-        }
 
+        cachedConfig = new ApiSecretConfig();
         return cachedConfig;
     }
 
-    private static string GetLocalSecretsPath()
+    private static string[] GetLocalSecretsPaths()
     {
         #if UNITY_EDITOR
-        return System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), LocalSecretsFileName);
+        return new[]
+        {
+            System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), LocalSecretsFileName),
+            System.IO.Path.Combine(Application.persistentDataPath, LocalSecretsFileName)
+        };
         #else
-        return System.IO.Path.Combine(Application.persistentDataPath, LocalSecretsFileName);
+        string buildFolderPath = System.IO.Directory.GetParent(Application.dataPath)?.FullName;
+        return new[]
+        {
+            string.IsNullOrEmpty(buildFolderPath) ? "" : System.IO.Path.Combine(buildFolderPath, LocalSecretsFileName),
+            System.IO.Path.Combine(Application.persistentDataPath, LocalSecretsFileName)
+        };
         #endif
     }
 }

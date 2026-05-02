@@ -4072,10 +4072,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poeApiKey: 
-  poeModel: nano-banana-pro
+  poeModel: nano-banana-2
   poeChatCompletionsApiUrl: https://api.poe.com/v1/chat/completions
   spriteSize: 96
-  saveDebugImages: 1
   logPrompts: 1
   rateLimitRetryCount: 3
   rateLimitBaseDelaySeconds: 5

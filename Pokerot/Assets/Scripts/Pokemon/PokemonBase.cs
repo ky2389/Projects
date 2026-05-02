@@ -54,6 +54,7 @@ public class PokemonBase : ScriptableObject
 
     public string Description {
         get { return description; }
+        set { description = value; }
     }
 
     public Sprite FrontSprite {

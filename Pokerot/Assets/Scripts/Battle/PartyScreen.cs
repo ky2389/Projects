@@ -10,6 +10,11 @@ public class PartyScreen : MonoBehaviour
     PartyMemberUI[] memberSlots;
     List<Pokemon> pokemons;
 
+    private void Awake()
+    {
+        Init();
+    }
+
     public void Init()
     {
         memberSlots = GetComponentsInChildren<PartyMemberUI>(true);
@@ -17,26 +22,44 @@ public class PartyScreen : MonoBehaviour
 
     public void SetPartyData(List<Pokemon> pokemons)
     {
-        this.pokemons = pokemons;
+        if (memberSlots == null || memberSlots.Length == 0)
+        {
+            Init();
+        }
+
+        this.pokemons = pokemons ?? new List<Pokemon>();
 
         for (int i = 0; i < memberSlots.Length; i++)
         {
-            if (i < pokemons.Count)
+            if (i < this.pokemons.Count && this.pokemons[i] != null)
             {
                 memberSlots[i].gameObject.SetActive(true);
-                memberSlots[i].SetData(pokemons[i]);
+                memberSlots[i].SetData(this.pokemons[i]);
             }
             else
                 memberSlots[i].gameObject.SetActive(false);
         }
 
-        messageText.text = "Choose a Pokemon";
+        if (messageText != null)
+        {
+            messageText.text = "Choose a Pokemon";
+        }
     }
 
     public void UpdateMemberSelection(int selectedMember)
     {
+        if (pokemons == null || memberSlots == null)
+        {
+            return;
+        }
+
         for (int i = 0; i < pokemons.Count; i++)
         {
+            if (i >= memberSlots.Length || memberSlots[i] == null)
+            {
+                continue;
+            }
+
             if (i == selectedMember)
                 memberSlots[i].SetSelected(true);
             else
@@ -46,6 +69,9 @@ public class PartyScreen : MonoBehaviour
 
     public void SetMessageText(string message)
     {
-        messageText.text = message;
+        if (messageText != null)
+        {
+            messageText.text = message;
+        }
     }
 }

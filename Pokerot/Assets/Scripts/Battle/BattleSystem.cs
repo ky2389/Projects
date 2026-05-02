@@ -120,7 +120,22 @@ public class BattleSystem : MonoBehaviour
 
     void OpenPartyScreen()
     {
+        if (partyScreen == null)
+        {
+            Debug.LogError("PartyScreen is not assigned in the BattleSystem component!");
+            ActionSelection();
+            return;
+        }
+
+        if (playerParty == null || playerParty.Pokemons == null || playerParty.Pokemons.Count == 0)
+        {
+            Debug.LogError("Cannot open party screen because the player party is empty.");
+            ActionSelection();
+            return;
+        }
+
         state = BattleState.PartyScreen;
+        currentMember = Mathf.Clamp(currentMember, 0, playerParty.Pokemons.Count - 1);
         partyScreen.SetPartyData(playerParty.Pokemons);
         partyScreen.gameObject.SetActive(true);
     }
@@ -546,7 +561,7 @@ public class BattleSystem : MonoBehaviour
 
         dialogBox.UpdateActionSelection(currentAction);
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (IsConfirmKeyDown())
         {
             if (currentAction == 0)
             {
@@ -599,7 +614,7 @@ public class BattleSystem : MonoBehaviour
 
         dialogBox.UpdateMoveSelection(currentMove, playerUnit.Pokemon.Moves[currentMove]);
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (IsConfirmKeyDown())
         {
             var move = playerUnit.Pokemon.Moves[currentMove];
             if (move.PP == 0) return;
@@ -608,7 +623,7 @@ public class BattleSystem : MonoBehaviour
             dialogBox.EnableDialogText(true);
             StartCoroutine(RunTurns(BattleAction.Move));
         }
-        else if (Input.GetKeyDown(KeyCode.X))
+        else if (IsCancelKeyDown())
         {
             dialogBox.EnableMoveSelector(false);
             dialogBox.EnableDialogText(true);
@@ -618,6 +633,14 @@ public class BattleSystem : MonoBehaviour
 
     void HandlePartySelection()
     {
+        if (playerParty == null || playerParty.Pokemons == null || playerParty.Pokemons.Count == 0)
+        {
+            partyScreen?.gameObject.SetActive(false);
+            Debug.LogError("Cannot select a Pokemon because the player party is empty.");
+            ActionSelection();
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             //Select.PlayOneShot(select);
@@ -643,7 +666,7 @@ public class BattleSystem : MonoBehaviour
 
         partyScreen.UpdateMemberSelection(currentMember);
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (IsConfirmKeyDown())
         {
             var selectedMember = playerParty.Pokemons[currentMember];
             if (selectedMember.HP <= 0)
@@ -670,7 +693,7 @@ public class BattleSystem : MonoBehaviour
                 StartCoroutine(SwitchPokemon(selectedMember));
             }
         }
-        else if (Input.GetKeyDown(KeyCode.X))
+        else if (IsCancelKeyDown())
         {
             if (playerUnit.Pokemon.HP <= 0)
             {
@@ -697,7 +720,7 @@ public class BattleSystem : MonoBehaviour
 
         dialogBox.UpdateChoiceBox(aboutToUseChoice);
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (IsConfirmKeyDown())
         {
             dialogBox.EnableChoiceBox(false);
             if (aboutToUseChoice == true)
@@ -712,7 +735,7 @@ public class BattleSystem : MonoBehaviour
                 StartCoroutine(SendNextTrainerPokemon());
             }
         }
-        else if (Input.GetKeyDown(KeyCode.X))
+        else if (IsCancelKeyDown())
         {
             dialogBox.EnableChoiceBox(false);
             StartCoroutine(SendNextTrainerPokemon());
@@ -741,6 +764,16 @@ public class BattleSystem : MonoBehaviour
             prevState = null;
             StartCoroutine(SendNextTrainerPokemon());
         }
+    }
+
+    private bool IsConfirmKeyDown()
+    {
+        return Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Space);
+    }
+
+    private bool IsCancelKeyDown()
+    {
+        return Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Backspace);
     }
 
     IEnumerator SendNextTrainerPokemon()

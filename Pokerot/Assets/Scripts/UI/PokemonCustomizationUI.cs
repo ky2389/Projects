@@ -471,7 +471,9 @@ public class PokemonCustomizationUI : MonoBehaviour
         PokemonBase pokemon = ScriptableObject.CreateInstance<PokemonBase>();
         
         // Set basic info
+        pokemon.name = pokemonNameInput.text;
         pokemon.Name = pokemonNameInput.text;
+        pokemon.Description = currentPokemonData?.description ?? "";
         pokemon.Type1 = selectedType1;
         pokemon.Type2 = selectedType2;
 
@@ -488,13 +490,16 @@ public class PokemonCustomizationUI : MonoBehaviour
             pokemon.BackSprite = Resources.Load<Sprite>(defaultSpritePathBack);
         }
 
-        // Set default stats
-        pokemon.MaxHp = 120;
-        pokemon.Attack = 120;
-        pokemon.Defense = 120;
-        pokemon.SpAttack = 120;
-        pokemon.SpDefense = 120;
-        pokemon.Speed = 120;
+        // Set balanced starter-style defaults so generated Pokemon work when reloaded later.
+        pokemon.MaxHp = 80;
+        pokemon.Attack = 80;
+        pokemon.Defense = 80;
+        pokemon.SpAttack = 80;
+        pokemon.SpDefense = 80;
+        pokemon.Speed = 80;
+        pokemon.ExpYield = 64;
+        pokemon.GrowthRate = GrowthRate.MediumFast;
+        pokemon.CatchRate = 45;
 
         // Get moves from GPT response if available
         if (currentPokemonData != null && currentPokemonData.moves != null)
@@ -533,6 +538,7 @@ public class PokemonCustomizationUI : MonoBehaviour
 
         // Create a unique filename based on the Pokemon's name
         string assetPath = $"{CUSTOM_POKEMON_ASSET_PATH}/{safeName}.asset";
+        LinkSavedSpriteAssets(pokemon, safeName);
 
         // Save the asset
         if (AssetDatabase.LoadAssetAtPath<PokemonBase>(assetPath) == null)
@@ -700,6 +706,34 @@ public class PokemonCustomizationUI : MonoBehaviour
 
         string spritePath = $"{CUSTOM_SPRITES_ASSET_PATH}/{spriteName}.png";
         File.WriteAllBytes(spritePath, pngData);
+        AssetDatabase.ImportAsset(spritePath, ImportAssetOptions.ForceUpdate);
+
+        TextureImporter importer = AssetImporter.GetAtPath(spritePath) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.filterMode = FilterMode.Point;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            importer.SaveAndReimport();
+        }
+    }
+
+    private void LinkSavedSpriteAssets(PokemonBase pokemon, string safeName)
+    {
+        Sprite frontSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{CUSTOM_SPRITES_ASSET_PATH}/{safeName}_front.png");
+        Sprite backSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{CUSTOM_SPRITES_ASSET_PATH}/{safeName}_back.png");
+
+        if (frontSprite != null)
+        {
+            pokemon.FrontSprite = frontSprite;
+        }
+
+        if (backSprite != null)
+        {
+            pokemon.BackSprite = backSprite;
+        }
     }
     #endif
 

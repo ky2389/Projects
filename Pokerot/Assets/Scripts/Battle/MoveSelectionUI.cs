@@ -32,7 +32,7 @@ public class MoveSelectionUI : MonoBehaviour
 
         UpdateMoveSelection(currentSelection);
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Space))
             onSelected?.Invoke(currentSelection);
     }
 
