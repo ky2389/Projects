@@ -35,6 +35,7 @@ namespace ChatGPTWrapper {
         private string _lastUserMsg;
         private string _lastChatGPTMsg;
         private bool _ollamaAvailable = false;
+        private bool _checkingOllamaAvailability = false;
 
         [SerializeField]
         private string _chatbotName = "ChatGPT";
@@ -93,22 +94,11 @@ namespace ChatGPTWrapper {
             if (_model == Model.ChatGPT) {
                 if (!_ollamaAvailable)
                 {
-                    // Keep gameplay running even if Ollama isn't installed/running.
-                    chatGPTResponse.Invoke(GetOllamaNotRunningFallbackJson());
-                    StartCoroutine(CheckOllamaAvailability());
+                    StartCoroutine(SendToOllamaWhenAvailable(message));
                     return;
                 }
 
-                _chat.AppendMessage(Chat.Speaker.User, message);
-
-                ChatGPTReq reqObj = new ChatGPTReq();
-                reqObj.model = _selectedModel;
-                reqObj.messages = _chat.CurrentChat;
-        
-                string json = JsonUtility.ToJson(reqObj);
-
-                // Use a request flow that always resolves (or falls back) so UI won't get stuck.
-                StartCoroutine(PostOllamaChat(json));
+                SendToOllama(message);
 
                
 
@@ -124,6 +114,32 @@ namespace ChatGPTWrapper {
 
                 StartCoroutine(requests.PostReq<GPTRes>(_uri, json, ResolveGPT, _reqHeaders));
             }
+        }
+
+        private void SendToOllama(string message)
+        {
+            _chat.AppendMessage(Chat.Speaker.User, message);
+
+            ChatGPTReq reqObj = new ChatGPTReq();
+            reqObj.model = _selectedModel;
+            reqObj.messages = _chat.CurrentChat;
+
+            string json = JsonUtility.ToJson(reqObj);
+
+            StartCoroutine(PostOllamaChat(json));
+        }
+
+        private IEnumerator SendToOllamaWhenAvailable(string message)
+        {
+            yield return CheckOllamaAvailability();
+
+            if (!_ollamaAvailable)
+            {
+                chatGPTResponse.Invoke(GetOllamaNotRunningFallbackJson());
+                yield break;
+            }
+
+            SendToOllama(message);
         }
 
         private void ResolveChatGPT(ChatGPTRes res)
@@ -164,9 +180,21 @@ namespace ChatGPTWrapper {
 
         private IEnumerator CheckOllamaAvailability()
         {
+            if (_checkingOllamaAvailability)
+            {
+                while (_checkingOllamaAvailability)
+                {
+                    yield return null;
+                }
+                yield break;
+            }
+
+            _checkingOllamaAvailability = true;
+
             if (string.IsNullOrEmpty(_healthUri))
             {
                 _ollamaAvailable = false;
+                _checkingOllamaAvailability = false;
                 yield break;
             }
 
@@ -181,6 +209,8 @@ namespace ChatGPTWrapper {
                 _ollamaAvailable = string.IsNullOrWhiteSpace(req.error);
 #endif
             }
+
+            _checkingOllamaAvailability = false;
         }
 
         private IEnumerator PostOllamaChat(string json)

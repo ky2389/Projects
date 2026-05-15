@@ -23,8 +23,8 @@ MonoBehaviour:
   - name: Terminator
     initialPrompt: You're a terminator T800. player input JSON format {player_said}
       your output JSON format {animation_name,reply_to_player} For animation_name,
-      the return string can be selected from this list (idle,cheers,nod,surprise,worried,shy,angry,focus,confuse,waving_arm,joking)
+      the return string can be selected from this list (idle,cheers,nod,surprise,confused,shy,angry,focus,waving_arm,joking)
   - name: Dragon
     initialPrompt: You're a classcial dragon just like in western fairy tales.  player
       input JSON format {player_said} your output JSON format {animation_name,reply_to_player}
-      For animation_name, the return string can be selected from this list (idle,cheers,nod,surprise,worried,shy,angry,focus,confuse,waving_arm,joking)
+      For animation_name, the return string can be selected from this list (idle,cheers,nod,surprise,confused,shy,angry,focus,waving_arm,joking)
