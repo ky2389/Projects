@@ -42,5 +42,19 @@ namespace ChatGPTWrapper {
             _currentChat.RemoveAt(1);
             return _removeLength;
         }
+        // Overwrites the last assistant message in history. Used to scrub malformed
+        // model output before it can contaminate future turns via few-shot imitation.
+        public bool ReplaceLastAssistantMessage(string text)
+        {
+            for (int i = _currentChat.Count - 1; i >= 0; i--)
+            {
+                if (_currentChat[i].role == "assistant")
+                {
+                    _currentChat[i] = new Message("assistant", text);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

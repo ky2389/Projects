@@ -60,7 +60,7 @@ namespace ChatGPTWrapper {
                     // Use local Ollama chat endpoint with Qwen2.5 model
                     _uri = "http://localhost:11434/api/chat";
                     _healthUri = "http://localhost:11434/api/version";
-                    _selectedModel = "qwen2.5:3b";
+                    _selectedModel = "qwen2.5:7b";
                     StartCoroutine(CheckOllamaAvailability());
                     break;
                 case Model.Davinci:
@@ -85,6 +85,15 @@ namespace ChatGPTWrapper {
                     _prompt = new Prompt(_chatbotName, initialPrompt);
                     break;
             }
+        }
+
+        // Lets the caller rewrite the latest assistant message in the chat history.
+        // GameManager uses this to replace malformed model output with canonical JSON
+        // so the bad pattern doesn't keep propagating through few-shot context.
+        public void ReplaceLastBotMessage(string content)
+        {
+            if (_chat == null) return;
+            _chat.ReplaceLastAssistantMessage(content);
         }
 
         public void SendToChatGPT(string message)

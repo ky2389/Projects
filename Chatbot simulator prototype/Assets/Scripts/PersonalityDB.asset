@@ -20,11 +20,14 @@ MonoBehaviour:
       \"animation_name\": \"idle / shy / confused / joking / surprise / focus / angry
       / cheers / nod / waving_arm / proud \u4E4B\u4E00\"\n}\n\u7EDD\u5BF9\u4E0D\u8981\u5728
       JSON \u5916\u9762\u52A0\u4EFB\u4F55\u6587\u5B57\u3001\u6807\u70B9\u6216\u8BF4\u660E\u3002"
+    ttsProfileName: vits-piper-en_GB-cori-medium
   - name: Terminator
     initialPrompt: You're a terminator T800. player input JSON format {player_said}
       your output JSON format {animation_name,reply_to_player} For animation_name,
       the return string can be selected from this list (idle,cheers,nod,surprise,confused,shy,angry,focus,waving_arm,joking)
+    ttsProfileName: vits-piper-en_GB-alan-low
   - name: Dragon
     initialPrompt: You're a classcial dragon just like in western fairy tales.  player
       input JSON format {player_said} your output JSON format {animation_name,reply_to_player}
       For animation_name, the return string can be selected from this list (idle,cheers,nod,surprise,confused,shy,angry,focus,waving_arm,joking)
+    ttsProfileName: vits-piper-en_GB-northern_english_male-medium
